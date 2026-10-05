@@ -21,6 +21,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+// ignore: depend_on_referenced_packages
+import 'package:audioplayers/audioplayers.dart' show AudioContextConfig, AudioContextConfigFocus, AudioPlayer;
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 
@@ -87,6 +89,7 @@ class SoundService {
   bool _bgmStarted = false; // music really started (not blocked by the browser)
   bool _gestureSeen = false; // the player has tapped/clicked at least once
 
+  AudioPool? _buttonPool; // reusable players: short click plays reliably
   final Map<SoundCue, int> _lastPlayedMs = {};
   final List<int> _fightEnds = [];
   final List<int> _voiceEnds = [];
@@ -106,6 +109,16 @@ class SoundService {
   /// playback has no hitch. Call once from the loading screen.
   Future<void> preload() async {
     if (_initialized) return;
+    // Android: by default every sound effect grabs "audio focus", which
+    // silences / stops the background music. Mix with others instead, so music
+    // keeps playing while clicks and battle sounds play on top of it.
+    try {
+      await AudioPlayer.global.setAudioContext(
+        AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers).build(),
+      );
+    } catch (e) {
+      debugPrint('SoundService: could not set audio context ($e)');
+    }
     try {
       FlameAudio.bgm.initialize(); // pauses / resumes music with the app
     } catch (_) {}
@@ -123,6 +136,11 @@ class SoundService {
         // The console tells you WHICH file is missing / not in pubspec.yaml.
         debugPrint('SoundService: could not load assets/audio/$f ($e)');
       }
+    }
+    try {
+      _buttonPool = await FlameAudio.createPool(_buttonSfx, maxPlayers: 4);
+    } catch (e) {
+      debugPrint('SoundService: could not create button pool ($e)');
     }
     _initialized = true;
   }
@@ -208,7 +226,15 @@ class SoundService {
     if (_nowMs() - _lastButtonMs < 120) return;
     _lastButtonMs = _nowMs();
     _duck(0.30, 450);
-    _playFile(_buttonSfx, 0.8 * volume);
+    final pool = _buttonPool;
+    if (pool != null) {
+      pool.start(volume: (0.8 * volume).clamp(0.0, 1.0).toDouble()).then<void>((_) {}, onError: (Object e) {
+        debugPrint('SoundService: button pool failed ($e), using fallback');
+        _playFile(_buttonSfx, 0.8 * volume);
+      });
+    } else {
+      _playFile(_buttonSfx, 0.8 * volume);
+    }
   }
 
   /// Click for the AppBar's automatic back arrow (no handler of ours runs
