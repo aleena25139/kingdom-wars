@@ -1,0 +1,54 @@
+name: kingdom_wars
+description: "Kingdom Wars: Castle Defense — RTS + Tower Defense hybrid"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: 1.18.0
+  flame_audio: ^2.10.2
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+  firebase_core: ^4.15.0
+  firebase_auth: ^6.7.0
+  cloud_firestore: ^6.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.3
+
+# App icon (replaces the default Flutter logo). Run:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/kenney/units/
+    - assets/kenney/enemies/
+    - assets/kenney/towers/
+    - assets/kenney/buildings/
+    - assets/kenney/buildings/castles/
+    - assets/kenney/ui/
+    - assets/kenney/tiles/
+    - assets/kenney/scenery/
+    - assets/kenney/effects/
+    - assets/audio/music/
+    - assets/audio/sfx/
+  # fonts:
+  #   - family: Cinzel
+  #     fonts:
+  #       - asset: assets/fonts/Cinzel-Regular.ttf
+  #       - asset: assets/fonts/Cinzel-Bold.ttf
+  #         weight: 700

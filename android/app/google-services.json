@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "374362788587",
+    "project_id": "kingdom-wars-b293a",
+    "storage_bucket": "kingdom-wars-b293a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374362788587:android:fe17decea8ee7784bae4ae",
+        "android_client_info": {
+          "package_name": "com.example.empire_defense"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcRINyeb-gxU_eWFcGlnHdcuYzvjlWk6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
