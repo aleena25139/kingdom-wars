@@ -30,7 +30,6 @@ class CreaturePainter {
     'knight': CreatureKind.knight,
     'mage': CreatureKind.mage,
     'good_dragon': CreatureKind.dragon,
-    'black_dragon': CreatureKind.dragon,
     'panda_warrior': CreatureKind.panda,
   };
 
@@ -485,7 +484,7 @@ class CreaturePainter {
 
   static void _dragon(Canvas c, double w) {
     final flap = math.sin(w * 1.5) * 4;
-    _poly(c, [Offset(36, 50), Offset(14, 12 + flap), Offset(44, 30), Offset(56, 6 + flap), Offset(62, 46)],
+    _poly(c, [const Offset(36, 50), Offset(14, 12 + flap), const Offset(44, 30), Offset(56, 6 + flap), const Offset(62, 46)],
         _f(const Color(0xFFB71C1C)));
     final tail = Path()
       ..moveTo(28, 66)

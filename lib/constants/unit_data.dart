@@ -135,7 +135,7 @@ class UnitData {
       speed: 1.0,
       spawnIntervalSeconds: 3.0,
       deployCost: 5, // TEST (orig 40)
-      unlockCost: 20, // TEST (orig 300)
+      unlockCost: 450, // raised
       levels: [
         UnitLevelStat(hp: 400, damage: 45),
         UnitLevelStat(hp: 600, damage: 70, upgradeCost: 10),
@@ -155,8 +155,8 @@ class UnitData {
       range: 6.0,
       isAoe: true,
       deployCost: 5, // TEST (orig 60)
-      unlockCost: 20, // TEST (orig 600)
-      unlockDiamondCost: 0, // TEST (orig 10)
+      unlockCost: 900, // raised
+      unlockDiamondCost: 15, // raised
       levels: [
         UnitLevelStat(hp: 120, damage: 70),
         UnitLevelStat(hp: 170, damage: 110, upgradeCost: 10),
@@ -177,8 +177,8 @@ class UnitData {
       isFlying: true,
       isAoe: true,
       deployCost: 5, // TEST (orig 150)
-      unlockCost: 30, // TEST (orig 1500)
-      unlockDiamondCost: 0, // TEST (orig 60)
+      unlockCost: 2250, // raised
+      unlockDiamondCost: 90, // raised
       levels: [
         UnitLevelStat(hp: 500, damage: 180),
         UnitLevelStat(hp: 750, damage: 260, upgradeCost: 10),
@@ -198,7 +198,7 @@ class UnitData {
       speed: 1.0,
       spawnIntervalSeconds: 3.2,
       deployCost: 5, // TEST (orig 45)
-      unlockCost: 20, // TEST (orig 450)
+      unlockCost: 675, // raised
       levels: [
         UnitLevelStat(hp: 300, damage: 65),
         UnitLevelStat(hp: 460, damage: 100, upgradeCost: 10),
@@ -226,8 +226,8 @@ class UnitData {
       range: 10.0, // reaches deep into the enemy half (was 6)
       isAoe: true,
       deployCost: 5, // TEST (orig 130)
-      unlockCost: 40, // TEST (orig 2500)
-      unlockDiamondCost: 0, // TEST (orig 100)
+      unlockCost: 3750, // raised
+      unlockDiamondCost: 150, // raised
       // Until elf_prince.png is added, the elf archer art is shown with a
       // golden wash so the Prince still looks different from the Archer.
       fallbackSprite: 'archer',
@@ -253,8 +253,8 @@ class UnitData {
       range: 8.0, // magic balls land on the enemy side (was 5)
       healsNearby: true,
       deployCost: 5, // TEST (orig 90)
-      unlockCost: 30, // TEST (orig 1800)
-      unlockDiamondCost: 0, // TEST (orig 70)
+      unlockCost: 2700, // raised
+      unlockDiamondCost: 105, // raised
       fallbackSprite: 'mage',
       fallbackTint: 0xFF69F0AE,
       levels: [
@@ -282,8 +282,8 @@ class UnitData {
       advanceToX: 12.0,
       advanceSpeed: 3.0,
       deployCost: 5, // TEST (orig 250)
-      unlockCost: 50, // TEST (orig 5000)
-      unlockDiamondCost: 0, // TEST (orig 200)
+      unlockCost: 7500, // raised
+      unlockDiamondCost: 300, // raised
       fallbackSprite: 'good_dragon',
       fallbackTint: 0xFFFF7043,
       levels: [

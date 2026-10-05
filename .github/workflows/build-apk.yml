@@ -1,4 +1,4 @@
-﻿name: Build APK
+﻿name: Build APK and AAB
 
 on:
   push:
@@ -24,9 +24,13 @@ jobs:
 
       - run: flutter pub get
 
+      - run: flutter build appbundle --release
+
       - run: flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
-          name: kingdom-wars-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: kingdom-wars-release
+          path: |
+            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/flutter-apk/app-release.apk
