@@ -20,6 +20,7 @@ import '../game_logic/state_provider.dart';
 import '../game/kingdom_wars_game.dart';
 import '../models/tower.dart';
 import '../services/sound_service.dart';
+import '../services/orientation_service.dart';
 import '../widgets/battle_hud.dart';
 import '../widgets/bottom_tower_bar.dart';
 import '../widgets/defeat_overlay.dart';
@@ -49,7 +50,14 @@ class _BattleScreenState extends State<BattleScreen> {
     super.initState();
     final provider = context.read<StateProvider>();
     _game = KingdomWarsGame(provider: provider);
+    OrientationService.instance.enterLandscape();
     SoundService.instance.playBattleMusic();
+  }
+
+  @override
+  void dispose() {
+    OrientationService.instance.leaveLandscape();
+    super.dispose();
   }
 
   void _onGridTap(TapDownDetails details, StateProvider provider) {

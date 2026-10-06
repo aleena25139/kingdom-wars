@@ -1,4 +1,4 @@
-﻿// Thin wrapper around flame_audio for music + SFX playback. Singleton so
+// Thin wrapper around flame_audio for music + SFX playback. Singleton so
 // screens/widgets can call it directly (SoundService.instance.playButtonTap(),
 // .playCue(), .playMusic()) without threading it through Provider. Respects
 // PlayerProgress.musicEnabled / sfxEnabled.
@@ -16,13 +16,14 @@
 //   * Every cue has its own minimum gap, and there is a cap on how many
 //     fight / voice sounds can overlap, so a big battle stays readable.
 //   * DUCKING: while any sound effect or button click plays, the background
-//     music is turned down a little (voices more, small fight sounds less)
+//     music is turned down clearly (voices a lot, small fight sounds less)
 //     and fades back up smoothly afterwards.
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/widgets.dart' show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 
 import '../models/sound_cue.dart';
 
@@ -38,7 +39,7 @@ class _CueCfg {
   const _CueCfg(this.file, this.volume, this.gapMs, this.durMs, this.duck, this.kind);
 }
 
-class SoundService {
+class SoundService with WidgetsBindingObserver {
   SoundService._();
   static final SoundService instance = SoundService._();
 
@@ -50,29 +51,29 @@ class SoundService {
 
   static const Map<SoundCue, _CueCfg> _cues = {
     // ---- your army ----
-    SoundCue.arrowShot: _CueCfg('sfx/arrow_shot.wav', 0.22, 240, 300, 0.40, _Kind.fight),
-    SoundCue.swordClash: _CueCfg('sfx/sword_clash.wav', 0.24, 280, 500, 0.40, _Kind.fight),
-    SoundCue.mageZap: _CueCfg('sfx/mage_zap.wav', 0.24, 320, 400, 0.40, _Kind.fight),
-    SoundCue.fireWhoosh: _CueCfg('sfx/fire_whoosh.wav', 0.26, 900, 900, 0.36, _Kind.fight),
-    SoundCue.dragonRoar: _CueCfg('sfx/dragon_roar.wav', 0.50, 3500, 1300, 0.26, _Kind.voice),
-    SoundCue.phoenixCry: _CueCfg('sfx/phoenix_cry.wav', 0.45, 3500, 1000, 0.26, _Kind.voice),
-    SoundCue.pandaRoar: _CueCfg('sfx/panda_roar.wav', 0.45, 3000, 550, 0.28, _Kind.voice),
-    SoundCue.pandaHit: _CueCfg('sfx/panda_hit.wav', 0.30, 450, 280, 0.38, _Kind.fight),
-    SoundCue.healChime: _CueCfg('sfx/heal_chime.wav', 0.28, 1500, 900, 0.40, _Kind.fight),
-    SoundCue.deployHorn: _CueCfg('sfx/deploy_horn.wav', 0.40, 400, 600, 0.30, _Kind.voice),
+    SoundCue.arrowShot: _CueCfg('sfx/arrow_shot.wav', 0.22, 240, 300, 0.24, _Kind.fight),
+    SoundCue.swordClash: _CueCfg('sfx/sword_clash.wav', 0.24, 280, 500, 0.24, _Kind.fight),
+    SoundCue.mageZap: _CueCfg('sfx/mage_zap.wav', 0.24, 320, 400, 0.24, _Kind.fight),
+    SoundCue.fireWhoosh: _CueCfg('sfx/fire_whoosh.wav', 0.26, 900, 900, 0.22, _Kind.fight),
+    SoundCue.dragonRoar: _CueCfg('sfx/dragon_roar.wav', 0.50, 3500, 1300, 0.10, _Kind.voice),
+    SoundCue.phoenixCry: _CueCfg('sfx/phoenix_cry.wav', 0.45, 3500, 1000, 0.10, _Kind.voice),
+    SoundCue.pandaRoar: _CueCfg('sfx/panda_roar.wav', 0.45, 3000, 550, 0.11, _Kind.voice),
+    SoundCue.pandaHit: _CueCfg('sfx/panda_hit.wav', 0.30, 450, 280, 0.23, _Kind.fight),
+    SoundCue.healChime: _CueCfg('sfx/heal_chime.wav', 0.28, 1500, 900, 0.24, _Kind.fight),
+    SoundCue.deployHorn: _CueCfg('sfx/deploy_horn.wav', 0.40, 400, 600, 0.12, _Kind.voice),
     // ---- enemies ----
-    SoundCue.skeletonRattle: _CueCfg('sfx/skeleton_rattle.wav', 0.20, 450, 500, 0.42, _Kind.fight),
-    SoundCue.goblinCackle: _CueCfg('sfx/goblin_cackle.wav', 0.40, 4000, 770, 0.30, _Kind.voice),
-    SoundCue.goblinHit: _CueCfg('sfx/goblin_hit.wav', 0.24, 400, 180, 0.40, _Kind.fight),
-    SoundCue.lizardRoar: _CueCfg('sfx/lizard_roar.wav', 0.55, 3500, 1100, 0.26, _Kind.voice),
-    SoundCue.lizardBite: _CueCfg('sfx/lizard_bite.wav', 0.30, 500, 350, 0.38, _Kind.fight),
-    SoundCue.monsterGrowl: _CueCfg('sfx/monster_growl.wav', 0.50, 3000, 1000, 0.26, _Kind.voice),
-    SoundCue.titanRoar: _CueCfg('sfx/titan_roar.wav', 0.60, 4500, 1800, 0.24, _Kind.voice),
-    SoundCue.houndBark: _CueCfg('sfx/hound_bark.wav', 0.30, 600, 220, 0.38, _Kind.fight),
+    SoundCue.skeletonRattle: _CueCfg('sfx/skeleton_rattle.wav', 0.20, 450, 500, 0.25, _Kind.fight),
+    SoundCue.goblinCackle: _CueCfg('sfx/goblin_cackle.wav', 0.40, 4000, 770, 0.12, _Kind.voice),
+    SoundCue.goblinHit: _CueCfg('sfx/goblin_hit.wav', 0.24, 400, 180, 0.24, _Kind.fight),
+    SoundCue.lizardRoar: _CueCfg('sfx/lizard_roar.wav', 0.55, 3500, 1100, 0.10, _Kind.voice),
+    SoundCue.lizardBite: _CueCfg('sfx/lizard_bite.wav', 0.30, 500, 350, 0.23, _Kind.fight),
+    SoundCue.monsterGrowl: _CueCfg('sfx/monster_growl.wav', 0.50, 3000, 1000, 0.10, _Kind.voice),
+    SoundCue.titanRoar: _CueCfg('sfx/titan_roar.wav', 0.60, 4500, 1800, 0.10, _Kind.voice),
+    SoundCue.houndBark: _CueCfg('sfx/hound_bark.wav', 0.30, 600, 220, 0.23, _Kind.fight),
     // ---- general ----
-    SoundCue.hitThud: _CueCfg('sfx/hit_thud.wav', 0.22, 260, 300, 0.42, _Kind.fight),
-    SoundCue.explosion: _CueCfg('sfx/explosion.wav', 0.34, 700, 1100, 0.32, _Kind.fight),
-    SoundCue.thunder: _CueCfg('sfx/thunder.wav', 0.34, 1200, 1600, 0.32, _Kind.fight),
+    SoundCue.hitThud: _CueCfg('sfx/hit_thud.wav', 0.22, 260, 300, 0.25, _Kind.fight),
+    SoundCue.explosion: _CueCfg('sfx/explosion.wav', 0.34, 700, 1100, 0.19, _Kind.fight),
+    SoundCue.thunder: _CueCfg('sfx/thunder.wav', 0.34, 1200, 1600, 0.19, _Kind.fight),
   };
 
   static const int _maxFightOverlap = 3;
@@ -120,6 +121,7 @@ class SoundService {
     try {
       FlameAudio.bgm.initialize(); // pauses / resumes music with the app
     } catch (_) {}
+    _attachLifecycle();
     final files = <String>[
       _musicTrack,
       _buttonSfx,
@@ -154,6 +156,48 @@ class SoundService {
   }
 
   void setSfxEnabled(bool enabled) => _sfxEnabled = enabled;
+  // ---- app lifecycle: music must stop when the player leaves the game ----
+  bool _lifecycleAttached = false;
+  bool _pausedByApp = false;
+
+  void _attachLifecycle() {
+    if (_lifecycleAttached) return;
+    _lifecycleAttached = true;
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        // Home button, recent apps, screen off, or another app in front.
+        _pausedByApp = true;
+        try {
+          FlameAudio.bgm.pause();
+        } catch (_) {}
+        try {
+          FlameAudio.bgm.audioPlayer.pause();
+        } catch (_) {}
+        break;
+      case AppLifecycleState.resumed:
+        if (!_pausedByApp) return;
+        _pausedByApp = false;
+        if (_musicShouldBePlaying && _musicEnabled) {
+          if (_bgmStarted) {
+            try {
+              FlameAudio.bgm.resume();
+            } catch (_) {}
+          } else {
+            _playBgm();
+          }
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
+    }
+  }
 
   void applySettings({required bool musicEnabled, required bool sfxEnabled}) {
     _sfxEnabled = sfxEnabled;
@@ -175,6 +219,7 @@ class SoundService {
   }
 
   Future<void> _playBgm() async {
+    if (_pausedByApp) return; // app is in the background: stay silent
     if (!_musicEnabled) return;
     // Already playing: do not restart the song when another screen asks again.
     if (_bgmStarted && FlameAudio.bgm.isPlaying) return;
@@ -223,7 +268,7 @@ class SoundService {
     // closes) must still sound like ONE click.
     if (_nowMs() - _lastButtonMs < 120) return;
     _lastButtonMs = _nowMs();
-    _duck(0.30, 450);
+    _duck(0.12, 650);
     final pool = _buttonPool;
     if (pool != null) {
       pool.start(volume: (0.8 * volume).clamp(0.0, 1.0).toDouble()).then<void>((_) {}, onError: (Object e) {
@@ -246,7 +291,7 @@ class SoundService {
   /// Generic "something happened" sound (chest opened, victory, defeat...).
   void playVfx({double volume = 1.0}) {
     if (!_sfxEnabled) return;
-    _duck(0.30, 900);
+    _duck(0.10, 1100);
     _playFile(_vfxSfx, 0.8 * volume);
   }
 
@@ -273,7 +318,7 @@ class SoundService {
 
     _lastPlayedMs[cue] = now;
     ends.add(now + cfg.durMs);
-    _duck(cfg.duck, cfg.durMs + 150);
+    _duck(cfg.duck, cfg.durMs + (cfg.kind == _Kind.voice ? 350 : 200));
     _playFile(cfg.file, cfg.volume);
   }
 
@@ -316,9 +361,9 @@ class SoundService {
     final target = active ? _duckLevel : _musicVolume;
     var v = _currentMusicVol;
     if (v > target) {
-      v = math.max(target, v - 0.06); // go down quickly
+      v = math.max(target, v - 0.15); // dip almost instantly
     } else if (v < target) {
-      v = math.min(target, v + 0.012); // come back up slowly
+      v = math.min(target, v + 0.015); // come back up smoothly
     }
     if (v != _currentMusicVol) {
       _currentMusicVol = v;

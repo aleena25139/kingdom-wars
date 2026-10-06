@@ -1334,7 +1334,9 @@ class BattleEngine {
       final d = CollisionHelper.distance(projectile.x, projectile.y, targetX, targetY);
       if (projectile.travelTotal <= 0) projectile.travelTotal = max(d, 0.001);
       projectile.progress = (1 - d / projectile.travelTotal).clamp(0.0, 1.0);
-      if (d <= 0.3) {
+      // Also arrive when this step would reach the target: at 3x a step is longer
+      // than the hit radius and the arrow used to circle around it forever.
+      if (d <= 0.3 || d <= projectile.speed * dt) {
         _resolveProjectileImpact(projectile);
         projectile.alive = false;
       } else {

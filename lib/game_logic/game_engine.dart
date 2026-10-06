@@ -71,9 +71,29 @@ class GameEngine {
   void tick(double realDt) {
     final battle = activeBattle;
     if (battle == null || isPaused) return;
-    final scaledDt = realDt * speedMultiplier;
-    lastResult = battle.tick(scaledDt);
+    // Ignore huge frame hitches (app switch, GC pause...) instead of
+    // simulating them in one giant step.
+    var remaining = realDt.clamp(0.0, _maxRealFrame).toDouble() * speedMultiplier;
+    // At 2x / 3x one frame is a big chunk of game time. Run it as several
+    // small steps so nothing "jumps over" its target, attack cooldowns and
+    // projectiles stay accurate, and the army never looks frozen.
+    while (remaining > 0) {
+      final step = remaining < _maxSimStep ? remaining : _maxSimStep;
+      lastResult = battle.tick(step);
+      remaining -= step;
+      if (battle.status != BattleStatus.ongoing) break;
+    }
   }
+
+  static const double _maxSimStep = 1 / 30; // biggest single simulation step
+  static const double _maxRealFrame = 0.1; // longest real frame we simulate
+
+  /// How much faster the ANIMATIONS must run so they match the game speed.
+  /// Game logic runs at 2x/3x, so sprite animations (attack swings, walk
+  /// cycles, effects) have to run at 2x/3x too -- otherwise an attack
+  /// animation is still playing when the next hit arrives and soldiers look
+  /// stuck in their attack pose.
+  double get visualSpeed => (activeBattle == null || isPaused) ? 1.0 : speedMultiplier;
 
   void endBattle() {
     activeBattle = null;

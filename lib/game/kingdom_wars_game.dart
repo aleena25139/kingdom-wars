@@ -255,7 +255,11 @@ class KingdomWarsGame extends FlameGame {
 
   @override
   void update(double dt) {
-    super.update(dt);
+    // Components (sprite animations, attack swings, fx timers) run on GAME
+    // time, so at 2x / 3x speed they animate 2x / 3x faster and stay in sync
+    // with the battle logic. The day/night clock and the engine itself keep
+    // using the real frame time (the engine applies the speed on its own).
+    super.update(dt * provider.gameEngine.visualSpeed);
     dayNightClock += dt;
     provider.tickBattle(dt);
     _playBattleSounds();

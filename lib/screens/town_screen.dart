@@ -15,6 +15,7 @@ import '../constants/app_colors.dart';
 import '../constants/town_data.dart';
 import '../game_logic/state_provider.dart';
 import '../services/sound_service.dart';
+import '../services/orientation_service.dart';
 import '../town/town_art.dart';
 import '../town/town_painter.dart';
 import '../widgets/top_hud_bar.dart';
@@ -47,6 +48,7 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+    OrientationService.instance.enterLandscape();
     // Runs 0..1 over 1000s; painters multiply by 1000 to get seconds.
     _clock = AnimationController(vsync: this, duration: const Duration(seconds: 1000))..repeat();
   }
@@ -55,6 +57,7 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
   void dispose() {
     _clock.dispose();
     _cam.dispose();
+    OrientationService.instance.leaveLandscape();
     super.dispose();
   }
 
