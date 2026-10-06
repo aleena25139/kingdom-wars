@@ -94,7 +94,7 @@ class CastleComponent extends PositionComponent {
         _renderedLevel = castle.level;
         return;
       }
-      final f = 'kenney/buildings/castle_evil.png';
+      const f = 'kenney/buildings/castle_evil.png';
       if (!await _tryLoad(f)) {
         _renderedLevel = castle.level;
         return;

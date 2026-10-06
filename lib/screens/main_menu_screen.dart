@@ -71,10 +71,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
               ],
             ),
           ),
-          Positioned(
+          const Positioned(
             right: 16,
             bottom: 90,
-            child: const TreasureChestWidget(),
+            child: TreasureChestWidget(),
           ),
         ],
       ),

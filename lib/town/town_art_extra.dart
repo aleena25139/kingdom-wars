@@ -378,7 +378,7 @@ class TownArtX {
       ..close();
     c.drawPath(hull, _f(const Color(0xFF8D4B2A)));
     c.drawPath(hull, _st(const Color(0xFF4E2A14), 1.2));
-    c.drawLine(Offset(0, 0), Offset(0, -s * 0.38), _st(const Color(0xFF4E2A14), math.max(1.2, s * 0.03)));
+    c.drawLine(const Offset(0, 0), Offset(0, -s * 0.38), _st(const Color(0xFF4E2A14), math.max(1.2, s * 0.03)));
     final sail = Path()
       ..moveTo(s * 0.02, -s * 0.36)
       ..lineTo(s * 0.22, -s * 0.04)
@@ -409,7 +409,7 @@ class TownArtX {
     c.drawOval(Rect.fromCenter(center: Offset(0, s * 0.2), width: s * 0.9, height: s * 0.14), _f(Colors.black.withValues(alpha: 0.2)));
     final wheelY = s * 0.15;
     if (loco) {
-      final black = const Color(0xFF2E2E36);
+      const black = Color(0xFF2E2E36);
       // boiler
       final boiler = RRect.fromRectAndRadius(Rect.fromLTWH(-s * 0.4, -s * 0.12 + chug, s * 0.52, s * 0.22), Radius.circular(s * 0.1));
       c.drawRRect(boiler, _f(black));

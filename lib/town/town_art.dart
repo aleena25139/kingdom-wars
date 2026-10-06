@@ -1289,7 +1289,7 @@ class _PreviewPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final r = Rect.fromLTWH(0, size.height - tile, tile, tile);
     final t = (time?.value ?? 0) * 1000;
-    final side = TownArt.east | TownArt.west;
+    const side = TownArt.east | TownArt.west;
     TownArt.drawGround(canvas, r, 0, 0);
     if (TownArt.isRoadId(id)) {
       TownArt.drawRoad(canvas, id, r, side, 1, 1);

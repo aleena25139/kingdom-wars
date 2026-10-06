@@ -11,7 +11,6 @@
 // lives here — components just read model fields to draw.
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
-import 'dart:ui' show Color;
 
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
@@ -132,7 +131,7 @@ class KingdomWarsGame extends FlameGame {
     final p = cyclePhase;
     if (p < _dayShare - t) return 1.0;
     if (p < _dayShare + t) return 1 - ((p - (_dayShare - t)) / (2 * t));
-    final wrapEnd = 1.0 - t;
+    const wrapEnd = 1.0 - t;
     if (p < wrapEnd) return 0.0;
     return (p - wrapEnd) / t;
   }

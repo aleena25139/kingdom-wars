@@ -61,7 +61,7 @@ class GameEngine {
   void resume() => isPaused = false;
 
   void cycleSpeed() {
-    final options = GameBalance.battleSpeedOptions;
+    const options = GameBalance.battleSpeedOptions;
     final currentIndex = options.indexOf(speedMultiplier);
     speedMultiplier = options[(currentIndex + 1) % options.length];
   }

@@ -782,7 +782,7 @@ class BattleEngine {
 
     if (foe == null) {
       // Nobody to fight: stand guard in front of the castle, facing the lane.
-      final guardX = PathManager.castleContactX + 2.5;
+      const guardX = PathManager.castleContactX + 2.5;
       if (ally.x > guardX + 0.1) {
         _moveEnemyToward(ally, guardX, ally.y, dt);
       } else {

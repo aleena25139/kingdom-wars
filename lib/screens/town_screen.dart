@@ -229,7 +229,7 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: AppColors.royalGold, width: 2),
         ),
-        title: Row(children: const [
+        title: const Row(children: [
           Icon(Icons.emoji_events, color: AppColors.royalGold),
           SizedBox(width: 8),
           Text('TOWN LEVEL UP!'),

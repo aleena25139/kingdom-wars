@@ -41,7 +41,7 @@ class TownCamera extends ChangeNotifier {
     cx = x;
     cy = y;
     scale = s.clamp(minScale, maxScale).toDouble();
-    final lim = TownData.worldLimit * TownLayout.tile;
+    const lim = TownData.worldLimit * TownLayout.tile;
     cx = cx.clamp(-lim, lim).toDouble();
     cy = cy.clamp(-lim, lim).toDouble();
     notifyListeners();
@@ -99,7 +99,7 @@ class TownPainter extends CustomPainter {
     final halfH = size.height / 2 / scale;
     final vis = Rect.fromLTRB(camera.cx - halfW, camera.cy - halfH, camera.cx + halfW, camera.cy + halfH);
 
-    final lim = TownData.worldLimit;
+    const lim = TownData.worldLimit;
     final c0 = ((vis.left / _tile).floor() - 1).clamp(-lim, lim).toInt();
     final c1 = ((vis.right / _tile).ceil() + 1).clamp(-lim, lim).toInt();
     final r0 = ((vis.top / _tile).floor() - 1).clamp(-lim, lim).toInt();

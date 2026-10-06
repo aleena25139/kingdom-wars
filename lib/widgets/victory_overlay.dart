@@ -105,7 +105,7 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
                   ElevatedButton(
                     onPressed: () {
                       SoundService.instance.playButtonTap();
-                      onNextLevel!();
+                      onNextLevel();
                     },
                     child: const Text('NEXT LEVEL'),
                   ),

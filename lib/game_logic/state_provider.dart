@@ -446,11 +446,11 @@ class StateProvider extends ChangeNotifier {
     if (!isBuildingUnlocked(def)) return 'Win ${def.unlockWins} levels to unlock';
     final k = TownData.key(col, row);
     final existingId = progress.townGrid[k];
-    BuildingDef? replaced;
+    // (a bridge, boat or train may be placed on top of a river or rail tile)
     if (existingId != null) {
       // Bridges, boats and trains go ON TOP of a river / rail tile.
       if (def.placeOn.contains(existingId)) {
-        replaced = TownData.byId(existingId);
+        // allowed: this building goes on top of the existing tile
       } else if (def.placeOn.isNotEmpty) {
         final names = def.placeOn.map((x) => TownData.byId(x)?.name ?? x).join(' or ');
         return '${def.name} must be placed on a $names tile';

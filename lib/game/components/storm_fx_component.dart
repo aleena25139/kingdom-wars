@@ -514,7 +514,7 @@ class StormFxComponent extends PositionComponent {
           ..strokeWidth = 2.5,
       );
       if (img != null) {
-        final w = 64.0;
+        const w = 64.0;
         final h = w * img.height / img.width;
         _drawFx(canvas, img, Rect.fromLTWH(head.dx - w / 2, head.dy - h, w, h), 1.0);
       } else {
@@ -637,7 +637,7 @@ class StormFxComponent extends PositionComponent {
     final c = target.translate(0, -8);
     const r = 26.0;
     // Slash arc: sweeps from upper-right down to lower-left (knight faces left).
-    final start = -math.pi * 0.15;
+    const start = -math.pi * 0.15;
     final arc = math.pi * 0.95 * sweep;
     final rect = Rect.fromCircle(center: c, radius: r);
     canvas.drawArc(

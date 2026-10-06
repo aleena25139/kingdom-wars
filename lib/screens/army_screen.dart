@@ -50,11 +50,11 @@ class ArmyScreen extends StatelessWidget {
       body: Column(
         children: [
           const TopHudBar(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
               'Unlock and upgrade units here — the effect is permanent. Your army is permanent: every unit you own stands in formation next to the castle from the start of each battle and never leaves its post. Use FORMATION (top right) to choose exactly where each unit stands. If a soldier falls, you can pay its deploy cost on the battle screen to send a replacement.',
-              style: const TextStyle(color: AppColors.cyan, fontSize: 12),
+              style: TextStyle(color: AppColors.cyan, fontSize: 12),
             ),
           ),
           Expanded(
