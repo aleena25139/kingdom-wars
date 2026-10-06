@@ -227,10 +227,11 @@ class SoundService with WidgetsBindingObserver {
   }
 
   void setMusicEnabled(bool enabled) {
-    _musicEnabled = enabled; // set BEFORE pausing, so the watchdog stays quiet
+    _musicEnabled = enabled;
     if (!enabled) {
       _pauseMusic();
     } else {
+      _musicShouldBePlaying = true;
       _ensureMusic();
     }
   }
@@ -271,20 +272,24 @@ class SoundService with WidgetsBindingObserver {
     final m = _music;
     if (m == null || !_wantMusic || _musicStarting) return;
     if (m.state == PlayerState.playing) return;
+    final src = _sources[_musicTrack];
+    if (src == null) return;
     _musicStarting = true;
     try {
       _currentMusicVol = _duckActive ? _duckLevel : _musicVolume;
-      if (!_musicLoaded) {
-        final src = _sources[_musicTrack];
-        if (src == null) return;
-        await m.play(src, volume: _currentMusicVol);
-        _musicLoaded = true;
-      } else {
-        await m.setVolume(_currentMusicVol);
-        await m.resume();
-      }
+      await (() async {
+        if (_musicLoaded && m.state == PlayerState.paused) {
+          await m.setVolume(_currentMusicVol);
+          await m.resume();
+        } else {
+          await m.stop();
+          await m.play(src, volume: _currentMusicVol);
+          _musicLoaded = true;
+        }
+      })().timeout(const Duration(seconds: 3));
     } catch (e) {
-      debugPrint('SoundService: music could not start yet ($e)');
+      _musicLoaded = false;
+      debugPrint('SoundService: music restart ($e)');
     } finally {
       _musicStarting = false;
     }
