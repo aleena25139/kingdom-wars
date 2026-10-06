@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import '../services/orientation_service.dart';
 import 'loading_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    OrientationService.instance.forcePortrait(); // menu is always portrait
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
     _scale = Tween(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));

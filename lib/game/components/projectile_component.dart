@@ -135,6 +135,12 @@ class ProjectileComponent extends PositionComponent {
   @override
   void update(double dt) {
     super.update(dt);
+    // Dead arrow (hit / target gone): remove at once, never leave it hanging
+    // in the air -- this is what made arrows "stick" at 2x / 3x speed.
+    if (!projectile.alive) {
+      removeFromParent();
+      return;
+    }
     final newPos = game.worldToScreen(projectile.x, projectile.y);
 
     // The arrow art points rightward (+x) at angle 0 in its source image, so

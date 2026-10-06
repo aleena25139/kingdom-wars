@@ -1,23 +1,19 @@
-// Thin wrapper around flame_audio for music + SFX playback. Singleton so
-// screens/widgets can call it directly (SoundService.instance.playButtonTap(),
-// .playCue(), .playMusic()) without threading it through Provider. Respects
-// PlayerProgress.musicEnabled / sfxEnabled.
+// Music + SFX for the whole game (singleton: SoundService.instance).
 //
-// Audio files (all under assets/audio/, registered in pubspec.yaml):
-//   music/game_music.mp3      background music (menu + battle)
-//   sfx/game_buttons.mp3      every button tap
-//   sfx/game_vfx.mp3          generic "something happened" sound
-//   sfx/*.wav                 one file per SoundCue (creature voices, fight
-//                             sounds) â€” see _cues below. Drop in your own
-//                             file with the same name to replace any of them.
+// REWRITTEN to fix:
+//  * music stuttering / stopping   -> ONE music player that is created once and
+//    only ever paused / resumed (never stopped + recreated). A watchdog restarts
+//    it if the OS pauses it behind our back.
+//  * music dead after OFF -> ON    -> toggling just pauses / resumes that player.
+//  * button clicks not audible     -> short clicks use pre-created players
+//    (no SoundPool / no new player per click).
+//  * voices arriving late / piling -> SFX use a small fixed set of reusable
+//    players (round-robin) instead of creating a new AudioPlayer per sound,
+//    plus hard caps on how many voices / fight sounds can overlap.
+//  * music volume down while any SFX or button plays (ducking), fades back up.
 //
-// Mixing rules, so the game never turns into noise:
-//   * Fight sounds are quiet (0.2-0.3), creature voices a bit louder (0.45-0.6).
-//   * Every cue has its own minimum gap, and there is a cap on how many
-//     fight / voice sounds can overlap, so a big battle stays readable.
-//   * DUCKING: while any sound effect or button click plays, the background
-//     music is turned down clearly (voices a lot, small fight sounds less)
-//     and fades back up smoothly afterwards.
+// Audio files (assets/audio/, registered in pubspec.yaml) are unchanged:
+//   music/game_music.mp3, sfx/game_buttons.mp3, sfx/game_vfx.mp3, sfx/*.wav
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -37,6 +33,33 @@ class _CueCfg {
   final double duck; // music volume while this plays (music base is 0.5)
   final _Kind kind;
   const _CueCfg(this.file, this.volume, this.gapMs, this.durMs, this.duck, this.kind);
+}
+
+/// A few reusable players used round-robin (no player is created while playing).
+class _PlayerPool {
+  final List<AudioPlayer> _players;
+  int _next = 0;
+  _PlayerPool(int size, AudioContext? ctx)
+      : _players = List.generate(size, (_) {
+          final p = AudioPlayer();
+          p.setReleaseMode(ReleaseMode.stop).catchError((Object _) {});
+          if (ctx != null) p.setAudioContext(ctx).catchError((Object _) {});
+          return p;
+        });
+
+  void play(Source source, double volume, String label) {
+    final p = _players[_next];
+    _next = (_next + 1) % _players.length;
+    p.play(source, volume: volume.clamp(0.0, 1.0).toDouble()).catchError((Object e) {
+      debugPrint('SoundService: could not play $label ($e)');
+    });
+  }
+
+  void stopAll() {
+    for (final p in _players) {
+      p.stop().catchError((Object _) {});
+    }
+  }
 }
 
 class SoundService with WidgetsBindingObserver {
@@ -76,19 +99,34 @@ class SoundService with WidgetsBindingObserver {
     SoundCue.thunder: _CueCfg('sfx/thunder.wav', 0.34, 1200, 1600, 0.19, _Kind.fight),
   };
 
+  // Fewer overlapping sounds = no "everything comes late" pile-up.
   static const int _maxFightOverlap = 3;
   static const int _maxVoiceOverlap = 2;
-  static const int _globalFightGapMs = 90;
-  static const int _globalVoiceGapMs = 350;
+  static const int _globalFightGapMs = 110;
+  static const int _globalVoiceGapMs = 450;
 
+  // ---- state ----
   bool _musicEnabled = true;
   bool _sfxEnabled = true;
   bool _initialized = false;
-  bool _musicShouldBePlaying = false;
-  bool _bgmStarted = false; // music really started (not blocked by the browser)
-  bool _gestureSeen = false; // the player has tapped/clicked at least once
+  bool _musicShouldBePlaying = false; // a screen asked for music
+  bool _pausedByApp = false; // app is in the background
+  bool _musicLoaded = false; // the music source was handed to the player once
+  bool _musicStarting = false;
+  bool _lifecycleAttached = false;
+  int _battleToken = 0; // delayed battle cries from an old battle are dropped
 
-  AudioPool? _buttonPool; // reusable players: short click plays reliably
+  AudioContext? _ctx;
+  AudioPlayer? _music;
+  StreamSubscription<PlayerState>? _musicStateSub;
+  Timer? _watchdog;
+
+  final Map<String, Source> _sources = {};
+  _PlayerPool? _buttonPool;
+  _PlayerPool? _vfxPool;
+  _PlayerPool? _fightPool;
+  _PlayerPool? _voicePool;
+
   final Map<SoundCue, int> _lastPlayedMs = {};
   final List<int> _fightEnds = [];
   final List<int> _voiceEnds = [];
@@ -104,62 +142,160 @@ class SoundService with WidgetsBindingObserver {
 
   static int _nowMs() => DateTime.now().millisecondsSinceEpoch;
 
-  /// Loads every audio file into flame_audio's cache up front so first
-  /// playback has no hitch. Call once from the loading screen.
+  bool get _wantMusic => _musicEnabled && _musicShouldBePlaying && !_pausedByApp && _initialized;
+
+  // ------------------------------------------------------------------
+  // Setup
+  // ------------------------------------------------------------------
+
+  /// Call once from the loading screen.
   Future<void> preload() async {
     if (_initialized) return;
-    // Android: by default every sound effect grabs "audio focus", which
-    // silences / stops the background music. Mix with others instead, so music
-    // keeps playing while clicks and battle sounds play on top of it.
+
+    // Android: never grab audio focus (it would silence the music whenever a
+    // click plays). Mix with whatever else is playing instead.
     try {
-      await AudioPlayer.global.setAudioContext(
-        AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers).build(),
-      );
+      _ctx = AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers).build();
+      await AudioPlayer.global.setAudioContext(_ctx!);
     } catch (e) {
       debugPrint('SoundService: could not set audio context ($e)');
     }
-    try {
-      FlameAudio.bgm.initialize(); // pauses / resumes music with the app
-    } catch (_) {}
+
     _attachLifecycle();
-    final files = <String>[
+
+    final files = <String>{
       _musicTrack,
       _buttonSfx,
       _vfxSfx,
-      ...{for (final c in _cues.values) c.file},
-    ];
+      for (final c in _cues.values) c.file,
+    };
     for (final f in files) {
       try {
-        await FlameAudio.audioCache.load(f);
+        _sources[f] = await _buildSource(f);
       } catch (e) {
-        // A missing file shouldn't crash the app â€” that sound just stays silent.
-        // The console tells you WHICH file is missing / not in pubspec.yaml.
+        // Missing file: that sound stays silent, the game keeps running.
         debugPrint('SoundService: could not load assets/audio/$f ($e)');
       }
     }
+
+    // One dedicated music player, created ONCE.
     try {
-      _buttonPool = await FlameAudio.createPool(_buttonSfx, maxPlayers: 4);
+      final m = AudioPlayer();
+      await m.setReleaseMode(ReleaseMode.loop);
+      if (_ctx != null) await m.setAudioContext(_ctx!);
+      await m.setVolume(_musicVolume);
+      _music = m;
+      _musicStateSub = m.onPlayerStateChanged.listen(_onMusicState);
     } catch (e) {
-      debugPrint('SoundService: could not create button pool ($e)');
+      debugPrint('SoundService: could not create music player ($e)');
     }
+
+    _buttonPool = _PlayerPool(3, _ctx);
+    _vfxPool = _PlayerPool(2, _ctx);
+    _fightPool = _PlayerPool(_maxFightOverlap + 1, _ctx);
+    _voicePool = _PlayerPool(_maxVoiceOverlap + 1, _ctx);
+
     _initialized = true;
+
+    // Music watchdog: if music should be on but the OS paused/stopped it, resume.
+    _watchdog = Timer.periodic(const Duration(seconds: 2), (_) => _ensureMusic());
+
+    if (_musicShouldBePlaying) _ensureMusic();
+  }
+
+  /// Local path / url of an asset copy that the audio player can read.
+  Future<Source> _buildSource(String file) async {
+    final dynamic loaded = await FlameAudio.audioCache.load(file);
+    final String path = loaded is Uri
+        ? (kIsWeb ? loaded.toString() : loaded.toFilePath())
+        : (loaded as dynamic).path as String;
+    return kIsWeb ? UrlSource(path) : DeviceFileSource(path);
+  }
+
+  // ------------------------------------------------------------------
+  // Settings
+  // ------------------------------------------------------------------
+
+  void applySettings({required bool musicEnabled, required bool sfxEnabled}) {
+    _sfxEnabled = sfxEnabled;
+    setMusicEnabled(musicEnabled);
+  }
+
+  void setSfxEnabled(bool enabled) {
+    _sfxEnabled = enabled;
+    if (!enabled) stopAllSfx();
   }
 
   void setMusicEnabled(bool enabled) {
-    _musicEnabled = enabled;
+    _musicEnabled = enabled; // set BEFORE pausing, so the watchdog stays quiet
     if (!enabled) {
-      _bgmStarted = false;
-      FlameAudio.bgm.stop();
-    } else if (_musicShouldBePlaying) {
-      _playBgm();
+      _pauseMusic();
+    } else {
+      _ensureMusic();
     }
   }
 
-  void setSfxEnabled(bool enabled) => _sfxEnabled = enabled;
-  // ---- app lifecycle: music must stop when the player leaves the game ----
-  bool _lifecycleAttached = false;
-  bool _pausedByApp = false;
+  // ------------------------------------------------------------------
+  // Music
+  // ------------------------------------------------------------------
 
+  void playMusic() {
+    _musicShouldBePlaying = true;
+    _ensureMusic();
+  }
+
+  void playMenuMusic() => playMusic();
+  void playBattleMusic() => playMusic();
+
+  void stopMusic() {
+    _musicShouldBePlaying = false;
+    _pauseMusic();
+  }
+
+  void _pauseMusic() {
+    final m = _music;
+    if (m == null) return;
+    m.pause().catchError((Object _) {});
+  }
+
+  void _onMusicState(PlayerState s) {
+    // The OS (or a phone call, other app...) paused us but we still want music.
+    if ((s == PlayerState.paused || s == PlayerState.stopped) && _wantMusic) {
+      Future<void>.delayed(const Duration(milliseconds: 400), _ensureMusic);
+    }
+  }
+
+  /// Makes sure the music is playing if it should be. Safe to call any time,
+  /// as often as you like: it never restarts a song that is already playing.
+  Future<void> _ensureMusic() async {
+    final m = _music;
+    if (m == null || !_wantMusic || _musicStarting) return;
+    if (m.state == PlayerState.playing) return;
+    _musicStarting = true;
+    try {
+      _currentMusicVol = _duckActive ? _duckLevel : _musicVolume;
+      if (!_musicLoaded) {
+        final src = _sources[_musicTrack];
+        if (src == null) return;
+        await m.play(src, volume: _currentMusicVol);
+        _musicLoaded = true;
+      } else {
+        await m.setVolume(_currentMusicVol);
+        await m.resume();
+      }
+    } catch (e) {
+      debugPrint('SoundService: music could not start yet ($e)');
+    } finally {
+      _musicStarting = false;
+    }
+  }
+
+  /// Called on every tap (main.dart). Browsers only allow sound after a tap.
+  void onUserGesture() {
+    if (_wantMusic && _music?.state != PlayerState.playing) _ensureMusic();
+  }
+
+  // ---- app lifecycle: music stops when the player leaves the game ----
   void _attachLifecycle() {
     if (_lifecycleAttached) return;
     _lifecycleAttached = true;
@@ -172,88 +308,17 @@ class SoundService with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
-        // Home button, recent apps, screen off, or another app in front.
-        _pausedByApp = true;
-        try {
-          FlameAudio.bgm.pause();
-        } catch (_) {}
-        try {
-          FlameAudio.bgm.audioPlayer.pause();
-        } catch (_) {}
+        _pausedByApp = true; // set first: the watchdog must not restart it
+        _pauseMusic();
+        stopAllSfx();
         break;
       case AppLifecycleState.resumed:
         if (!_pausedByApp) return;
         _pausedByApp = false;
-        if (_musicShouldBePlaying && _musicEnabled) {
-          if (_bgmStarted) {
-            try {
-              FlameAudio.bgm.resume();
-            } catch (_) {}
-          } else {
-            _playBgm();
-          }
-        }
+        _ensureMusic();
         break;
       case AppLifecycleState.inactive:
         break;
-    }
-  }
-
-  void applySettings({required bool musicEnabled, required bool sfxEnabled}) {
-    _sfxEnabled = sfxEnabled;
-    setMusicEnabled(musicEnabled);
-  }
-
-  void playMusic() {
-    _musicShouldBePlaying = true;
-    _playBgm();
-  }
-
-  void playMenuMusic() => playMusic();
-  void playBattleMusic() => playMusic();
-
-  void stopMusic() {
-    _musicShouldBePlaying = false;
-    _bgmStarted = false;
-    FlameAudio.bgm.stop();
-  }
-
-  Future<void> _playBgm() async {
-    if (_pausedByApp) return; // app is in the background: stay silent
-    if (!_musicEnabled) return;
-    // Already playing: do not restart the song when another screen asks again.
-    if (_bgmStarted && FlameAudio.bgm.isPlaying) return;
-    try {
-      _currentMusicVol = _duckActive ? _duckLevel : _musicVolume;
-      await FlameAudio.bgm.play(_musicTrack, volume: _currentMusicVol);
-      _bgmStarted = true;
-    } catch (e) {
-      _bgmStarted = false;
-      debugPrint('SoundService: music could not start yet ($e)');
-    }
-  }
-
-  /// Call on every tap / click (see main.dart). Browsers (Chrome) do not allow
-  /// sound before the player touches the page, so on the web the menu music
-  /// is (re)started by the very first tap. On phones / desktop the music
-  /// already started by itself and nothing happens here.
-  void onUserGesture() {
-    if (_gestureSeen) {
-      // later taps: only retry if music should be on but is not running
-      if (_musicShouldBePlaying && _musicEnabled && !_bgmStarted) _playBgm();
-      return;
-    }
-    _gestureSeen = true;
-    if (!_musicShouldBePlaying || !_musicEnabled) return;
-    if (kIsWeb) {
-      // The earlier attempt was blocked by the browser: start cleanly now.
-      _bgmStarted = false;
-      try {
-        FlameAudio.bgm.stop();
-      } catch (_) {}
-      _playBgm();
-    } else if (!_bgmStarted) {
-      _playBgm();
     }
   }
 
@@ -261,28 +326,18 @@ class SoundService with WidgetsBindingObserver {
   // Sound effects
   // ------------------------------------------------------------------
 
-  /// Every button tap. Also lowers the music a little while the click plays.
+  /// Every button tap. Also lowers the music while the click plays.
   void playButtonTap({double volume = 1.0}) {
     if (!_sfxEnabled) return;
-    // Two handlers firing for the same tap (e.g. a button + the page it
-    // closes) must still sound like ONE click.
-    if (_nowMs() - _lastButtonMs < 120) return;
-    _lastButtonMs = _nowMs();
-    _duck(0.12, 650);
-    final pool = _buttonPool;
-    if (pool != null) {
-      pool.start(volume: (0.8 * volume).clamp(0.0, 1.0).toDouble()).then<void>((_) {}, onError: (Object e) {
-        debugPrint('SoundService: button pool failed ($e), using fallback');
-        _playFile(_buttonSfx, 0.8 * volume);
-      });
-    } else {
-      _playFile(_buttonSfx, 0.8 * volume);
-    }
+    final now = _nowMs();
+    // Two handlers for the same tap must still sound like ONE click.
+    if (now - _lastButtonMs < 120) return;
+    _lastButtonMs = now;
+    _duck(0.12, 700);
+    _playOn(_buttonPool, _buttonSfx, 1.0 * volume);
   }
 
-  /// Click for the AppBar's automatic back arrow (no handler of ours runs
-  /// there). Skipped when a button click just played, so buttons that also
-  /// close their screen don't click twice.
+  /// Click for the AppBar's automatic back arrow.
   void playBackTap() {
     if (_nowMs() - _lastButtonMs < 400) return;
     playButtonTap();
@@ -291,14 +346,13 @@ class SoundService with WidgetsBindingObserver {
   /// Generic "something happened" sound (chest opened, victory, defeat...).
   void playVfx({double volume = 1.0}) {
     if (!_sfxEnabled) return;
-    _duck(0.10, 1100);
-    _playFile(_vfxSfx, 0.8 * volume);
+    _duck(0.10, 1200);
+    _playOn(_vfxPool, _vfxSfx, 0.9 * volume);
   }
 
-  /// One battle sound (creature voice / fight sound). Throttled, quiet, and
-  /// ducks the music while it plays.
+  /// One battle sound. Throttled, quiet, and ducks the music while it plays.
   void playCue(SoundCue cue) {
-    if (!_sfxEnabled) return;
+    if (!_sfxEnabled || !_initialized) return;
     final cfg = _cues[cue];
     if (cfg == null) return;
     final now = _nowMs();
@@ -306,36 +360,52 @@ class SoundService with WidgetsBindingObserver {
     final last = _lastPlayedMs[cue] ?? 0;
     if (now - last < cfg.gapMs) return;
 
-    final ends = cfg.kind == _Kind.voice ? _voiceEnds : _fightEnds;
+    final isVoice = cfg.kind == _Kind.voice;
+    final ends = isVoice ? _voiceEnds : _fightEnds;
     ends.removeWhere((e) => e <= now);
-    if (cfg.kind == _Kind.voice) {
+    if (isVoice) {
       if (ends.length >= _maxVoiceOverlap || now - _lastVoiceMs < _globalVoiceGapMs) return;
+      // A voice is more important than a swarm of small fight sounds.
       _lastVoiceMs = now;
     } else {
       if (ends.length >= _maxFightOverlap || now - _lastFightMs < _globalFightGapMs) return;
+      // Don't add small fight noises on top of a voice that is speaking.
+      if (_voiceEnds.any((e) => e > now)) return;
       _lastFightMs = now;
     }
 
     _lastPlayedMs[cue] = now;
     ends.add(now + cfg.durMs);
-    _duck(cfg.duck, cfg.durMs + (cfg.kind == _Kind.voice ? 350 : 200));
-    _playFile(cfg.file, cfg.volume);
+    _duck(cfg.duck, cfg.durMs + (isVoice ? 350 : 200));
+    _playOn(isVoice ? _voicePool : _fightPool, cfg.file, cfg.volume);
   }
 
-  /// Plays a cue after a delay (used for the army's battle cries at the
-  /// start of a fight, so the voices come one after another).
+  /// Plays a cue after a delay (army battle cries at the start of a fight).
+  /// Dropped if the battle was left in the meantime.
   void playCueDelayed(SoundCue cue, int delayMs) {
-    Future<void>.delayed(Duration(milliseconds: delayMs), () => playCue(cue));
+    final token = _battleToken;
+    Future<void>.delayed(Duration(milliseconds: delayMs), () {
+      if (token == _battleToken) playCue(cue);
+    });
   }
 
-  void _playFile(String file, double volume) {
-    try {
-      FlameAudio.play(file, volume: volume.clamp(0.0, 1.0).toDouble()).then<void>((_) {}, onError: (Object e) {
-        debugPrint('SoundService: could not play assets/audio/$file ($e)');
-      });
-    } catch (e) {
-      debugPrint('SoundService: could not play assets/audio/$file ($e)');
-    }
+  /// Call when a battle starts / ends (BattleScreen) so no old sounds linger.
+  void battleEnded() {
+    _battleToken++;
+    stopAllSfx();
+  }
+
+  void stopAllSfx() {
+    _fightPool?.stopAll();
+    _voicePool?.stopAll();
+    _fightEnds.clear();
+    _voiceEnds.clear();
+  }
+
+  void _playOn(_PlayerPool? pool, String file, double volume) {
+    final src = _sources[file];
+    if (pool == null || src == null) return;
+    pool.play(src, volume, file);
   }
 
   // ------------------------------------------------------------------
@@ -353,7 +423,7 @@ class SoundService with WidgetsBindingObserver {
       _duckLevel = math.min(_duckLevel, level); // deepest request wins
     }
     _duckUntilMs = math.max(_duckUntilMs, now + holdMs);
-    _duckTimer ??= Timer.periodic(const Duration(milliseconds: 50), (_) => _tickDuck());
+    _duckTimer ??= Timer.periodic(const Duration(milliseconds: 40), (_) => _tickDuck());
   }
 
   void _tickDuck() {
@@ -361,15 +431,13 @@ class SoundService with WidgetsBindingObserver {
     final target = active ? _duckLevel : _musicVolume;
     var v = _currentMusicVol;
     if (v > target) {
-      v = math.max(target, v - 0.15); // dip almost instantly
+      v = math.max(target, v - 0.2); // dip almost instantly
     } else if (v < target) {
-      v = math.min(target, v + 0.015); // come back up smoothly
+      v = math.min(target, v + 0.02); // come back up smoothly
     }
     if (v != _currentMusicVol) {
       _currentMusicVol = v;
-      try {
-        FlameAudio.bgm.audioPlayer.setVolume(v).catchError((_) {});
-      } catch (_) {}
+      _music?.setVolume(v).catchError((Object _) {});
     }
     if (!active && v >= _musicVolume - 0.0001) {
       _duckTimer?.cancel();
@@ -381,6 +449,9 @@ class SoundService with WidgetsBindingObserver {
   void dispose() {
     _duckTimer?.cancel();
     _duckTimer = null;
-    FlameAudio.bgm.stop();
+    _watchdog?.cancel();
+    _watchdog = null;
+    _musicStateSub?.cancel();
+    _music?.stop().catchError((Object _) {});
   }
 }

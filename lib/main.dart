@@ -8,23 +8,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'game_logic/state_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/cloud_sync.dart';
 import 'services/firebase_service.dart';
+import 'services/orientation_service.dart';
 import 'services/save_service.dart';
 import 'services/sound_service.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  await OrientationService.instance.forcePortrait();
 
   // Firebase (cloud save + global leaderboard) is optional and never blocks
   // the game: with no internet, or before Firebase is configured, it simply

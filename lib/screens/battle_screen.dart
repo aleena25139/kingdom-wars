@@ -56,6 +56,7 @@ class _BattleScreenState extends State<BattleScreen> {
 
   @override
   void dispose() {
+    SoundService.instance.battleEnded(); // no battle cries / old sfx after leaving
     OrientationService.instance.leaveLandscape();
     super.dispose();
   }

@@ -322,6 +322,18 @@ class KingdomWarsGame extends FlameGame {
         return c;
       },
     );
+
+    // Safety net for fast battle speeds (2x / 3x): a projectile can be born and
+    // die inside one frame, or its component can be mid-load when it is told to
+    // leave. Any projectile component whose projectile is gone is removed here,
+    // so no arrow ever stays stuck on screen.
+    final liveProjectileIds = battle.projectiles.where((p) => p.alive).map((p) => p.id).toSet();
+    for (final c in children.whereType<ProjectileComponent>().toList()) {
+      if (!liveProjectileIds.contains(c.projectile.id)) {
+        c.removeFromParent();
+        _projectileComponents.remove(c.projectile.id);
+      }
+    }
   }
 
   /// Generic add/remove reconciliation: any id in [liveIds] not yet in
