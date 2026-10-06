@@ -66,7 +66,7 @@ class TownArt {
     final s = r.width;
     c.drawOval(
       Rect.fromCenter(center: Offset(r.center.dx, r.bottom - s * 0.1), width: s * wf, height: s * 0.2),
-      _fill(Colors.black.withOpacity(0.2)),
+      _fill(Colors.black.withValues(alpha: 0.2)),
     );
   }
 
@@ -75,7 +75,7 @@ class TownArt {
     final rr = RRect.fromRectAndRadius(box, Radius.circular(radius));
     c.drawRRect(rr, _fill(color));
     c.drawRect(Rect.fromLTRB(box.right - box.width * 0.2, box.top, box.right, box.bottom),
-        _fill(Colors.black.withOpacity(0.12)));
+        _fill(Colors.black.withValues(alpha: 0.12)));
     c.drawRRect(rr, _stroke(_shade(color, -0.3), math.max(1, box.width * 0.025)));
   }
 
@@ -92,7 +92,7 @@ class TownArt {
       ..lineTo(box.right + ov, box.top + 1)
       ..lineTo(box.center.dx, box.top + 1)
       ..close();
-    c.drawPath(dark, _fill(Colors.black.withOpacity(0.16)));
+    c.drawPath(dark, _fill(Colors.black.withValues(alpha: 0.16)));
     c.drawPath(p, _stroke(_shade(color, -0.3), math.max(1, box.width * 0.025)));
   }
 
@@ -126,7 +126,7 @@ class TownArt {
     for (var i = 0; i < 3; i++) {
       final k = ((t * 0.45) + i / 3) % 1.0;
       final pos = base.translate(math.sin(k * 5 + i) * s * 0.04 + k * s * 0.1, -k * s * 0.42);
-      c.drawCircle(pos, s * (0.03 + 0.05 * k), _fill(Colors.white.withOpacity(0.55 * (1 - k))));
+      c.drawCircle(pos, s * (0.03 + 0.05 * k), _fill(Colors.white.withValues(alpha: 0.55 * (1 - k))));
     }
   }
 
@@ -163,7 +163,7 @@ class TownArt {
         ..close();
       c.drawPath(p, _fill(i.isEven ? c1 : c2));
     }
-    c.drawLine(Offset(a.left, a.top), Offset(a.right, a.top), _stroke(Colors.black.withOpacity(0.35), 1));
+    c.drawLine(Offset(a.left, a.top), Offset(a.right, a.top), _stroke(Colors.black.withValues(alpha: 0.35), 1));
   }
 
   // ------------------------------------------------------------------
@@ -174,7 +174,7 @@ class TownArt {
     final s = box.width;
     final rr = RRect.fromRectAndRadius(box, const Radius.circular(2));
     c.drawRRect(rr, _fill(base));
-    final line = _stroke(_shade(base, -0.18).withOpacity(0.75), 0.8);
+    final line = _stroke(_shade(base, -0.18).withValues(alpha: 0.75), 0.8);
     final bh = s * 0.11;
     var i = 0;
     for (var y = box.top + bh; y < box.bottom - 1; y += bh, i++) {
@@ -184,7 +184,7 @@ class TownArt {
         c.drawLine(Offset(x, y - bh), Offset(x, y), line);
       }
     }
-    c.drawRect(Rect.fromLTRB(box.right - s * 0.2, box.top, box.right, box.bottom), _fill(Colors.black.withOpacity(0.14)));
+    c.drawRect(Rect.fromLTRB(box.right - s * 0.2, box.top, box.right, box.bottom), _fill(Colors.black.withValues(alpha: 0.14)));
     c.drawRRect(rr, _stroke(_shade(base, -0.32), math.max(1, s * 0.025)));
   }
 
@@ -193,7 +193,7 @@ class TownArt {
     const beam = Color(0xFF4A3220);
     final s = box.width;
     c.drawRRect(RRect.fromRectAndRadius(box, const Radius.circular(1.5)), _fill(plaster));
-    c.drawRect(Rect.fromLTRB(box.right - s * 0.18, box.top, box.right, box.bottom), _fill(Colors.black.withOpacity(0.1)));
+    c.drawRect(Rect.fromLTRB(box.right - s * 0.18, box.top, box.right, box.bottom), _fill(Colors.black.withValues(alpha: 0.1)));
     final bw = math.max(1.2, s * 0.04);
     final bp = _stroke(beam, bw);
     for (var i = 0; i <= bays; i++) {
@@ -225,7 +225,7 @@ class TownArt {
       ..lineTo(box.center.dx, box.top - rise)
       ..lineTo(box.right + ov, box.top + 1)
       ..close());
-    final line = _stroke(_shade(color, -0.2).withOpacity(0.8), 0.8);
+    final line = _stroke(_shade(color, -0.2).withValues(alpha: 0.8), 0.8);
     final step = rise / 4;
     for (var y = box.top - rise + step; y < box.top + 1; y += step) {
       c.drawLine(Offset(box.left - ov, y), Offset(box.right + ov, y), line);
@@ -246,7 +246,7 @@ class TownArt {
     c.drawPath(path, _fill(color));
     c.save();
     c.clipPath(path);
-    final strand = _stroke(_shade(color, -0.14).withOpacity(0.8), 0.9);
+    final strand = _stroke(_shade(color, -0.14).withValues(alpha: 0.8), 0.9);
     for (var x = box.left - ov; x <= box.right + ov; x += box.width * 0.075) {
       final top = box.top - rise * (1 - (x - cx).abs() / halfW);
       c.drawLine(Offset(x, top), Offset(x, box.top + 2), strand);
@@ -257,7 +257,7 @@ class TownArt {
         ..lineTo(box.right + ov, box.top + 2)
         ..lineTo(cx, box.top + 2)
         ..close(),
-      _fill(Colors.black.withOpacity(0.14)),
+      _fill(Colors.black.withValues(alpha: 0.14)),
     );
     c.restore();
     // ragged fringe
@@ -358,7 +358,7 @@ class TownArt {
     }
     final h = _hash(col, row);
     if (cobble) {
-      final line = _stroke(edge.withOpacity(0.6), 0.8);
+      final line = _stroke(edge.withValues(alpha: 0.6), 0.8);
       for (final p in parts) {
         for (var y = p.top + s * 0.1; y < p.bottom; y += s * 0.14) {
           c.drawLine(Offset(p.left, y), Offset(p.right, y), line);
@@ -371,12 +371,12 @@ class TownArt {
         c.drawCircle(
           Offset(r.left + (k % 100) / 100 * s * 0.6 + s * 0.2, r.top + ((k ~/ 100) % 100) / 100 * s * 0.6 + s * 0.2),
           s * 0.018,
-          _fill(const Color(0xFF8A6438).withOpacity(0.6)),
+          _fill(const Color(0xFF8A6438).withValues(alpha: 0.6)),
         );
       }
     }
     // dashed centre line along straight runs
-    final dash = _stroke(Colors.white.withOpacity(cobble ? 0.5 : 0.35), math.max(1, s * 0.025));
+    final dash = _stroke(Colors.white.withValues(alpha: cobble ? 0.5 : 0.35), math.max(1, s * 0.025));
     final horiz = m & (east | west) != 0;
     final vert = m & (north | south) != 0;
     if (horiz && !vert) {
@@ -579,7 +579,7 @@ class TownArt {
     for (var x = box.left + s * 0.06; x < box.right; x += s * 0.09) {
       c.drawLine(Offset(x, box.top), Offset(x, box.bottom), stake);
     }
-    c.drawRect(Rect.fromLTRB(box.right - s * 0.12, box.top, box.right, box.bottom), _fill(Colors.black.withOpacity(0.13)));
+    c.drawRect(Rect.fromLTRB(box.right - s * 0.12, box.top, box.right, box.bottom), _fill(Colors.black.withValues(alpha: 0.13)));
     c.drawRect(box, _stroke(const Color(0xFF6B4A28), 1.2));
     _thatch(c, box, s * 0.36, const Color(0xFFD9B04C));
     _smoke(c, Offset(box.center.dx + s * 0.1, box.top - s * 0.28), t, s);
@@ -660,7 +660,7 @@ class TownArt {
         ..lineTo(tower.right + s * 0.03, tower.top + 1)
         ..lineTo(tower.center.dx, tower.top + 1)
         ..close(),
-      _fill(Colors.black.withOpacity(0.18)),
+      _fill(Colors.black.withValues(alpha: 0.18)),
     );
     c.drawPath(cone, _stroke(const Color(0xFF1E3E5E), 1));
     c.drawRect(Rect.fromCenter(center: Offset(tower.center.dx, tower.top + s * 0.14), width: s * 0.035, height: s * 0.11),
@@ -687,8 +687,8 @@ class TownArt {
     _timberWall(c, f2, const Color(0xFFEBDDB8), bays: 3);
     _timberWall(c, f3, const Color(0xFFE4D3A8), bays: 3);
     // jetty shadows under the overhanging floors
-    c.drawRect(Rect.fromLTWH(f2.left, f2.bottom, f2.width, s * 0.025), _fill(Colors.black.withOpacity(0.25)));
-    c.drawRect(Rect.fromLTWH(f3.left, f3.bottom, f3.width, s * 0.025), _fill(Colors.black.withOpacity(0.25)));
+    c.drawRect(Rect.fromLTWH(f2.left, f2.bottom, f2.width, s * 0.025), _fill(Colors.black.withValues(alpha: 0.25)));
+    c.drawRect(Rect.fromLTWH(f3.left, f3.bottom, f3.width, s * 0.025), _fill(Colors.black.withValues(alpha: 0.25)));
     _tiledRoof(c, f3, const Color(0xFF8E3B2E), s * 0.3, overhang: 0.04);
     _smoke(c, chim.topCenter.translate(0, -s * 0.04), t, s);
     // attic window
@@ -791,7 +791,7 @@ class TownArt {
     // sparks
     final k = (t * 3) % 1.0;
     c.drawCircle(Offset(box.left + s * 0.2 + k * s * 0.1, box.bottom - s * 0.14 - k * s * 0.12), s * 0.012,
-        _fill(Colors.orangeAccent.withOpacity(1 - k)));
+        _fill(Colors.orangeAccent.withValues(alpha: 1 - k)));
   }
 
   static void _school(Canvas c, Rect r, double t) {
@@ -963,7 +963,7 @@ class TownArt {
     for (var i = 0; i < 2; i++) {
       final k = ((t * 0.7) + i * 0.5) % 1.0;
       c.drawOval(Rect.fromCenter(center: centre, width: rx * 1.6 * k, height: ry * 1.6 * k),
-          _stroke(Colors.white.withOpacity(0.6 * (1 - k)), 1));
+          _stroke(Colors.white.withValues(alpha: 0.6 * (1 - k)), 1));
     }
     // pillar
     c.drawRect(Rect.fromCenter(center: centre.translate(0, -s * 0.1), width: s * 0.07, height: s * 0.24), _fill(const Color(0xFFA0A0A0)));
@@ -987,7 +987,7 @@ class TownArt {
     // sparkles
     for (var i = 0; i < 4; i++) {
       final k = ((t * 1.3) + i * 0.25) % 1.0;
-      c.drawCircle(jetTop.translate(math.sin(i * 2.1) * s * 0.18, k * s * 0.22), s * 0.012, _fill(Colors.white.withOpacity(1 - k)));
+      c.drawCircle(jetTop.translate(math.sin(i * 2.1) * s * 0.18, k * s * 0.22), s * 0.012, _fill(Colors.white.withValues(alpha: 1 - k)));
     }
   }
 
@@ -1036,7 +1036,7 @@ class TownArt {
     for (var i = 0; i < 2; i++) {
       final k = ((t * 0.4) + i * 0.5) % 1.0;
       c.drawOval(Rect.fromCenter(center: water.center.translate(s * 0.1, 0), width: s * 0.5 * k, height: s * 0.3 * k),
-          _stroke(Colors.white.withOpacity(0.7 * (1 - k)), 1));
+          _stroke(Colors.white.withValues(alpha: 0.7 * (1 - k)), 1));
     }
     // lily pads
     for (final p in [const Offset(-0.25, 0.1), const Offset(0.2, 0.15), const Offset(-0.1, -0.15)]) {
@@ -1067,7 +1067,7 @@ class TownArt {
         c.drawRect(Rect.fromLTWH(f.left + f.width * i / 5, f.top, f.width / 5, f.height), _fill(const Color(0xFF47A842)));
       }
     }
-    final line = _stroke(Colors.white.withOpacity(0.9), 1.4);
+    final line = _stroke(Colors.white.withValues(alpha: 0.9), 1.4);
     c.drawRect(f.deflate(s * 0.04), line);
     c.drawLine(Offset(f.center.dx, f.top + s * 0.04), Offset(f.center.dx, f.bottom - s * 0.04), line);
     c.drawCircle(f.center, s * 0.1, line);
@@ -1107,7 +1107,7 @@ class TownArt {
     c.drawCircle(Offset(cx - s * 0.14, cy + s * 0.05), s * 0.2, _fill(const Color(0xFF2E7D32)));
     c.drawCircle(Offset(cx + s * 0.14, cy + s * 0.05), s * 0.2, _fill(const Color(0xFF2E7D32)));
     c.drawCircle(Offset(cx, cy - s * 0.08), s * 0.24, _fill(const Color(0xFF3FA34D)));
-    c.drawCircle(Offset(cx - s * 0.06, cy - s * 0.14), s * 0.1, _fill(const Color(0xFF66BB6A).withOpacity(0.8)));
+    c.drawCircle(Offset(cx - s * 0.06, cy - s * 0.14), s * 0.1, _fill(const Color(0xFF66BB6A).withValues(alpha: 0.8)));
   }
 
   static void _pine(Canvas c, Rect r, double t) {
@@ -1163,7 +1163,7 @@ class TownArt {
       top,
       s * 0.34,
       Paint()
-        ..shader = RadialGradient(colors: [const Color(0xFFFFE082).withOpacity(glow + 0.2), const Color(0x00FFE082)])
+        ..shader = RadialGradient(colors: [const Color(0xFFFFE082).withValues(alpha: glow + 0.2), const Color(0x00FFE082)])
             .createShader(Rect.fromCircle(center: top, radius: s * 0.34)),
     );
     c.drawRect(Rect.fromLTWH(r.center.dx - s * 0.03, top.dy, s * 0.06, s * 0.6), _fill(const Color(0xFF37474F)));
@@ -1253,7 +1253,7 @@ class TownArt {
       c.save();
       c.rotate(i * math.pi / 2);
       c.drawLine(Offset.zero, Offset(0, -s * 0.5), _stroke(const Color(0xFF6B4423), s * 0.03));
-      c.drawRect(Rect.fromLTWH(s * 0.015, -s * 0.5, s * 0.12, s * 0.3), _fill(Colors.white.withOpacity(0.92)));
+      c.drawRect(Rect.fromLTWH(s * 0.015, -s * 0.5, s * 0.12, s * 0.3), _fill(Colors.white.withValues(alpha: 0.92)));
       c.drawRect(Rect.fromLTWH(s * 0.015, -s * 0.5, s * 0.12, s * 0.3), _stroke(const Color(0xFF8E7F5E), 0.8));
       c.restore();
     }

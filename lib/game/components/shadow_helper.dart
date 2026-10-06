@@ -24,7 +24,7 @@ void drawGroundShadow(Canvas canvas, KingdomWarsGame game, Vector2 componentSize
   canvas.drawOval(
     rect,
     Paint()
-      ..color = const Color(0xFF000000).withOpacity(0.3 * strength)
+      ..color = const Color(0xFF000000).withValues(alpha: 0.3 * strength)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
   );
 }

@@ -91,7 +91,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               Text(
                 'Loading...',
                 style: TextStyle(
-                  color: AppColors.textPrimary.withOpacity(0.85),
+                  color: AppColors.textPrimary.withValues(alpha: 0.85),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1,

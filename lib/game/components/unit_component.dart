@@ -197,14 +197,14 @@ class UnitComponent extends PositionComponent {
         Offset(size.x / 2, size.y / 2),
         r,
         Paint()
-          ..color = const Color(0xFF42A5F5).withOpacity(pulse * 0.45)
+          ..color = const Color(0xFF42A5F5).withValues(alpha: pulse * 0.45)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
       );
       canvas.drawCircle(
         Offset(size.x / 2, size.y / 2),
         r * 0.8,
         Paint()
-          ..color = const Color(0xFF90CAF9).withOpacity(pulse)
+          ..color = const Color(0xFF90CAF9).withValues(alpha: pulse)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
@@ -265,7 +265,7 @@ class UnitComponent extends PositionComponent {
         canvas,
         position: Vector2(-size.x / 2, -size.y / 2),
         size: size,
-        overridePaint: Paint()..color = Colors.white.withOpacity(0.22 - i * 0.05),
+        overridePaint: Paint()..color = Colors.white.withValues(alpha: 0.22 - i * 0.05),
       );
       canvas.restore();
     }
@@ -283,7 +283,7 @@ class UnitComponent extends PositionComponent {
     final swoosh = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..color = Colors.white.withOpacity(0.75 * (1 - t))
+      ..color = Colors.white.withValues(alpha: 0.75 * (1 - t))
       ..strokeWidth = 3;
     if (_kfMove == 2) {
       canvas.drawArc(Rect.fromCircle(center: body, radius: size.x * 0.75), t * math.pi * 2, math.pi * 1.3, false, swoosh);
@@ -305,7 +305,7 @@ class UnitComponent extends PositionComponent {
     // white rim so it reads against any ground.
     void limb(Offset from, Offset to, double reachT, double radius, {bool foot = false}) {
       final pos = Offset.lerp(from, to, reachT.clamp(0.0, 1.0))!;
-      final rim = Paint()..color = Colors.white.withOpacity(0.9);
+      final rim = Paint()..color = Colors.white.withValues(alpha: 0.9);
       final fur = Paint()..color = const Color(0xFF15151A);
       final arm = Paint()
         ..color = const Color(0xFF15151A)
@@ -334,7 +334,7 @@ class UnitComponent extends PositionComponent {
       limb(from, hit.translate(-4, jab.isEven ? -2 : 3), reachT, 4.6);
       if (reachT > 0.5) {
         final l = Paint()
-          ..color = Colors.white.withOpacity(0.7)
+          ..color = Colors.white.withValues(alpha: 0.7)
           ..strokeWidth = 1.6
           ..strokeCap = StrokeCap.round;
         for (var i = -1; i <= 1; i++) {
@@ -363,11 +363,11 @@ class UnitComponent extends PositionComponent {
         hit,
         r,
         Paint()
-          ..color = const Color(0xFFFFE082).withOpacity(0.55 * fade)
+          ..color = const Color(0xFFFFE082).withValues(alpha: 0.55 * fade)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
       );
       final star = Paint()
-        ..color = Colors.white.withOpacity(0.95 * fade)
+        ..color = Colors.white.withValues(alpha: 0.95 * fade)
         ..strokeWidth = 2.4
         ..strokeCap = StrokeCap.round;
       for (var i = 0; i < 8; i++) {
@@ -385,7 +385,7 @@ class UnitComponent extends PositionComponent {
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2
-            ..color = Colors.white.withOpacity(0.6 * fade),
+            ..color = Colors.white.withValues(alpha: 0.6 * fade),
         );
       }
     }
@@ -419,7 +419,7 @@ class UnitComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFF7FD4FF).withOpacity(0.55 * fade)
+        ..color = const Color(0xFF7FD4FF).withValues(alpha: 0.55 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 7
         ..strokeJoin = StrokeJoin.round
@@ -428,7 +428,7 @@ class UnitComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = Colors.white.withOpacity(0.95 * fade)
+        ..color = Colors.white.withValues(alpha: 0.95 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.2
         ..strokeJoin = StrokeJoin.round,
@@ -437,7 +437,7 @@ class UnitComponent extends PositionComponent {
       end,
       10 * (1.3 - 0.5 * fade),
       Paint()
-        ..color = const Color(0xFFBFEAFF).withOpacity(0.8 * fade)
+        ..color = const Color(0xFFBFEAFF).withValues(alpha: 0.8 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
   }
@@ -460,7 +460,7 @@ class UnitComponent extends PositionComponent {
         canvas,
         position: Vector2(centerX - glowSize / 2, centerY - glowSize / 2),
         size: Vector2.all(glowSize),
-        overridePaint: Paint()..color = Colors.white.withOpacity(fade),
+        overridePaint: Paint()..color = Colors.white.withValues(alpha: fade),
       );
       return;
     }
@@ -472,17 +472,17 @@ class UnitComponent extends PositionComponent {
       Offset(centerX, centerY),
       glowRadius,
       Paint()
-        ..color = const Color(0xFFFFF3C4).withOpacity(0.85 * fade)
+        ..color = const Color(0xFFFFF3C4).withValues(alpha: 0.85 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
     canvas.drawCircle(
       Offset(centerX, centerY),
       glowRadius * 0.45,
-      Paint()..color = Colors.white.withOpacity(0.95 * fade),
+      Paint()..color = Colors.white.withValues(alpha: 0.95 * fade),
     );
     final streakLength = size.x * 0.4 * (0.5 + 0.5 * progress);
     final slashPaint = Paint()
-      ..color = Colors.white.withOpacity(0.9 * fade)
+      ..color = Colors.white.withValues(alpha: 0.9 * fade)
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
@@ -588,7 +588,7 @@ class UnitComponent extends PositionComponent {
       _staticSprite!.paint = _hurtTimer > 0
           ? (Paint()
             ..colorFilter = ColorFilter.mode(
-              const Color(0xFFFF3B30).withOpacity(0.55 * (_hurtTimer / 0.22)),
+              const Color(0xFFFF3B30).withValues(alpha: 0.55 * (_hurtTimer / 0.22)),
               BlendMode.srcATop,
             ))
           : Paint();
@@ -603,13 +603,13 @@ class UnitComponent extends PositionComponent {
         if (_isBigFlyer && unit.facingLeft) lungeOffsetX = -lungeOffsetX;
         _staticSprite!.paint = Paint()
           ..colorFilter = ColorFilter.mode(
-            Colors.white.withOpacity((1 - progress) * 0.6),
+            Colors.white.withValues(alpha: (1 - progress) * 0.6),
             BlendMode.srcATop,
           );
       } else {
         _staticSprite!.paint = _fallbackTint == null
             ? Paint()
-            : (Paint()..colorFilter = ColorFilter.mode(_fallbackTint!.withOpacity(0.4), BlendMode.srcATop));
+            : (Paint()..colorFilter = ColorFilter.mode(_fallbackTint!.withValues(alpha: 0.4), BlendMode.srcATop));
       }
     }
 

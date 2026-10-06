@@ -118,13 +118,13 @@ class _TroopBarState extends State<TroopBar> {
                   width: 56,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: boosted ? mpBlue.withOpacity(0.25) : Colors.transparent,
+                    color: boosted ? mpBlue.withValues(alpha: 0.25) : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: (boostReady || boosted) ? mpBlue : AppColors.emeraldGood.withOpacity(0.4),
+                      color: (boostReady || boosted) ? mpBlue : AppColors.emeraldGood.withValues(alpha: 0.4),
                       width: (boostReady || boosted) ? 2 : 1,
                     ),
-                    boxShadow: boostReady ? [BoxShadow(color: mpBlue.withOpacity(0.7), blurRadius: 10)] : null,
+                    boxShadow: boostReady ? [BoxShadow(color: mpBlue.withValues(alpha: 0.7), blurRadius: 10)] : null,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

@@ -90,11 +90,11 @@ class _ChapterNode extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.deepPurple,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: meta.color.withOpacity(0.7), width: 2),
+          border: Border.all(color: meta.color.withValues(alpha: 0.7), width: 2),
         ),
         child: Row(
           children: [
-            CircleAvatar(radius: 28, backgroundColor: meta.color.withOpacity(0.2), child: Icon(meta.icon, color: meta.color, size: 30)),
+            CircleAvatar(radius: 28, backgroundColor: meta.color.withValues(alpha: 0.2), child: Icon(meta.icon, color: meta.color, size: 30)),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

@@ -263,7 +263,7 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
         backgroundColor: AppColors.deepPurple,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.royalGold.withOpacity(0.6), width: 1.5),
+          side: BorderSide(color: AppColors.royalGold.withValues(alpha: 0.6), width: 1.5),
         ),
         title: Text(def.name),
         content: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -484,9 +484,9 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _demolish ? Colors.redAccent : AppColors.royalGold.withOpacity(0.6)),
+        border: Border.all(color: _demolish ? Colors.redAccent : AppColors.royalGold.withValues(alpha: 0.6)),
       ),
       child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
     );
@@ -499,7 +499,7 @@ class _TownScreenState extends State<TownScreen> with SingleTickerProviderStateM
     return Container(
       decoration: BoxDecoration(
         color: AppColors.darkPurple,
-        border: Border(top: BorderSide(color: AppColors.royalGold.withOpacity(0.5), width: 1.5)),
+        border: Border(top: BorderSide(color: AppColors.royalGold.withValues(alpha: 0.5), width: 1.5)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -617,7 +617,7 @@ class _TopAction extends StatelessWidget {
       tooltip: tooltip,
       visualDensity: VisualDensity.compact,
       icon: Icon(icon, color: active ? activeColor : AppColors.lightGold),
-      style: active ? IconButton.styleFrom(backgroundColor: activeColor.withOpacity(0.2)) : null,
+      style: active ? IconButton.styleFrom(backgroundColor: activeColor.withValues(alpha: 0.2)) : null,
       onPressed: () {
         SoundService.instance.playButtonTap();
         onTap();
@@ -670,10 +670,10 @@ class _BuildCard extends StatelessWidget {
           color: AppColors.deepPurple,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? AppColors.royalGold : AppColors.royalGold.withOpacity(0.25),
+            color: selected ? AppColors.royalGold : AppColors.royalGold.withValues(alpha: 0.25),
             width: selected ? 2.5 : 1,
           ),
-          boxShadow: selected ? [BoxShadow(color: AppColors.royalGold.withOpacity(0.4), blurRadius: 8)] : null,
+          boxShadow: selected ? [BoxShadow(color: AppColors.royalGold.withValues(alpha: 0.4), blurRadius: 8)] : null,
         ),
         child: Stack(
           children: [

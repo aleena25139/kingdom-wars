@@ -47,7 +47,7 @@ class UnitCard extends StatelessWidget {
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: locked ? AppColors.royalGold.withOpacity(0.25) : AppColors.royalGold.withOpacity(0.5),
+          color: locked ? AppColors.royalGold.withValues(alpha: 0.25) : AppColors.royalGold.withValues(alpha: 0.5),
         ),
       ),
       child: Opacity(
@@ -236,7 +236,7 @@ class _LevelBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.royalGold.withOpacity(0.2),
+        color: AppColors.royalGold.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

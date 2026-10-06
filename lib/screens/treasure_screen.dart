@@ -69,7 +69,7 @@ class _TierTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.6)),
+        border: Border.all(color: color.withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [

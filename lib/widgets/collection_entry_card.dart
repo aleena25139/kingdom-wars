@@ -43,7 +43,7 @@ class CollectionEntryCard extends StatelessWidget {
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: locked ? Colors.white24 : accentColor.withOpacity(0.55),
+          color: locked ? Colors.white24 : accentColor.withValues(alpha: 0.55),
         ),
       ),
       child: Row(
@@ -60,7 +60,7 @@ class CollectionEntryCard extends StatelessWidget {
                 )
               : CircleAvatar(
                   radius: 26,
-                  backgroundColor: (locked ? Colors.white : accentColor).withOpacity(0.15),
+                  backgroundColor: (locked ? Colors.white : accentColor).withValues(alpha: 0.15),
                   child: Icon(
                     locked ? Icons.lock : icon,
                     color: locked ? Colors.white54 : accentColor,

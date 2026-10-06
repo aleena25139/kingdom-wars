@@ -20,7 +20,7 @@ class PathComponent extends PositionComponent {
   void render(Canvas canvas) {
     // Tower grid overlay.
     final gridPaint = Paint()
-      ..color = AppColors.cyan.withOpacity(0.15)
+      ..color = AppColors.cyan.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     // Cell size scales with the current battlefield zoom (pixelsPerUnit)

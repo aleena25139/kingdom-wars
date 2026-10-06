@@ -53,7 +53,7 @@ class KnightSlotCard extends StatelessWidget {
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: locked ? AppColors.royalGold.withOpacity(0.2) : AppColors.royalGold.withOpacity(0.45),
+          color: locked ? AppColors.royalGold.withValues(alpha: 0.2) : AppColors.royalGold.withValues(alpha: 0.45),
         ),
       ),
       child: Opacity(
@@ -84,7 +84,7 @@ class KnightSlotCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.royalGold.withOpacity(0.2),
+                            color: AppColors.royalGold.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

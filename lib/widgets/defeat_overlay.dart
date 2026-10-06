@@ -55,7 +55,7 @@ class _DefeatOverlayState extends State<DefeatOverlay> {
     final newBest = widget.newBest;
     final bestScore = widget.bestScore;
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       alignment: Alignment.center,
       child: Container(
         padding: const EdgeInsets.all(28),
@@ -76,7 +76,7 @@ class _DefeatOverlayState extends State<DefeatOverlay> {
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                     color: AppColors.crimsonEvil,
                     fontSize: 32,
-                    shadows: [Shadow(color: AppColors.crimsonEvil.withOpacity(0.6), blurRadius: 16)],
+                    shadows: [Shadow(color: AppColors.crimsonEvil.withValues(alpha: 0.6), blurRadius: 16)],
                   ),
             ),
             const SizedBox(height: 8),
@@ -97,14 +97,14 @@ class _DefeatOverlayState extends State<DefeatOverlay> {
               Text(
                 newBest ? '🎉 NEW BEST SCORE!' : 'Best: $bestScore',
                 style: TextStyle(
-                  color: newBest ? AppColors.royalGold : AppColors.textPrimary.withOpacity(0.7),
+                  color: newBest ? AppColors.royalGold : AppColors.textPrimary.withValues(alpha: 0.7),
                   fontWeight: newBest ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 'Wave $endlessWave  •  $endlessKills enemies defeated',
-                style: TextStyle(color: AppColors.textPrimary.withOpacity(0.7), fontSize: 12),
+                style: TextStyle(color: AppColors.textPrimary.withValues(alpha: 0.7), fontSize: 12),
               ),
             ],
             const SizedBox(height: 24),

@@ -191,15 +191,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 3),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: me ? AppColors.royalGold.withOpacity(0.18) : AppColors.deepPurple,
+        color: me ? AppColors.royalGold.withValues(alpha: 0.18) : AppColors.deepPurple,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: me ? AppColors.royalGold : AppColors.royalGold.withOpacity(0.2)),
+        border: Border.all(color: me ? AppColors.royalGold : AppColors.royalGold.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           SizedBox(width: 38, child: Text(medal, style: const TextStyle(color: AppColors.textGold, fontWeight: FontWeight.bold))),
           Expanded(child: Text(e.name, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textPrimary))),
-          Text('Wave ${e.wave}', style: TextStyle(color: AppColors.textPrimary.withOpacity(0.6), fontSize: 11)),
+          Text('Wave ${e.wave}', style: TextStyle(color: AppColors.textPrimary.withValues(alpha: 0.6), fontSize: 11)),
           const SizedBox(width: 12),
           Text('${e.score}', style: const TextStyle(color: AppColors.lightGold, fontWeight: FontWeight.bold)),
         ],
@@ -224,7 +224,7 @@ class _RecordCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [

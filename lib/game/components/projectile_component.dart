@@ -69,14 +69,14 @@ class ProjectileComponent extends PositionComponent {
         c.translate(-r * 1.3, 0),
         r * 1.5,
         Paint()
-          ..color = const Color(0xFF69F0AE).withOpacity(0.35)
+          ..color = const Color(0xFF69F0AE).withValues(alpha: 0.35)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
       );
       canvas.drawCircle(
         c,
         r * 2.0 * pulse,
         Paint()
-          ..color = const Color(0xFFB9F6CA).withOpacity(0.4)
+          ..color = const Color(0xFFB9F6CA).withValues(alpha: 0.4)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
       );
       canvas.drawCircle(c, r, Paint()..color = const Color(0xFF00E676));
@@ -101,16 +101,16 @@ class ProjectileComponent extends PositionComponent {
     canvas.drawPath(
       tail,
       Paint()
-        ..color = const Color(0xFFFF6D00).withOpacity(0.55)
+        ..color = const Color(0xFFFF6D00).withValues(alpha: 0.55)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
     );
-    canvas.drawPath(tail, Paint()..color = const Color(0xFFFFA000).withOpacity(0.7));
+    canvas.drawPath(tail, Paint()..color = const Color(0xFFFFA000).withValues(alpha: 0.7));
     // Glow.
     canvas.drawCircle(
       c,
       r * 1.7,
       Paint()
-        ..color = const Color(0xFFFF5722).withOpacity(0.35)
+        ..color = const Color(0xFFFF5722).withValues(alpha: 0.35)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
     if (_isStone) {
@@ -118,7 +118,7 @@ class ProjectileComponent extends PositionComponent {
       canvas.drawCircle(c, r, Paint()..color = const Color(0xFF3B2A26));
       canvas.drawCircle(c.translate(-r * 0.25, -r * 0.25), r * 0.7, Paint()..color = const Color(0xFF5D4037));
       final crack = Paint()
-        ..color = const Color(0xFFFFB300).withOpacity(0.9)
+        ..color = const Color(0xFFFFB300).withValues(alpha: 0.9)
         ..style = PaintingStyle.stroke
         ..strokeWidth = math.max<double>(1.2, r * 0.13)
         ..strokeCap = StrokeCap.round;

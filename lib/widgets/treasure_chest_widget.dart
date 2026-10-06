@@ -74,11 +74,11 @@ class _TreasureChestWidgetState extends State<TreasureChestWidget>
               return Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.chestBrown.withOpacity(0.9),
+                  color: AppColors.chestBrown.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: AppColors.royalGold, width: 2),
                   boxShadow: ready
-                      ? [BoxShadow(color: AppColors.royalGold.withOpacity(0.6), blurRadius: glow, spreadRadius: 1)]
+                      ? [BoxShadow(color: AppColors.royalGold.withValues(alpha: 0.6), blurRadius: glow, spreadRadius: 1)]
                       : [],
                 ),
                 child: Column(

@@ -163,7 +163,7 @@ class CastleComponent extends PositionComponent {
     final capHeight = size.y * 0.16;
 
     // Jagged snow line sitting along the castle's roofline.
-    final snowPaint = Paint()..color = const Color(0xFFF3FAFF).withOpacity(0.92);
+    final snowPaint = Paint()..color = const Color(0xFFF3FAFF).withValues(alpha: 0.92);
     const bumps = 7;
     final snowPath = Path()..moveTo(0, 0);
     for (int i = 0; i <= bumps; i++) {
@@ -176,7 +176,7 @@ class CastleComponent extends PositionComponent {
     canvas.drawPath(snowPath, snowPaint);
 
     // A handful of icicles hanging just below the snow line.
-    final iciclePaint = Paint()..color = const Color(0xFFCFEFFF).withOpacity(0.85);
+    final iciclePaint = Paint()..color = const Color(0xFFCFEFFF).withValues(alpha: 0.85);
     const fracs = [0.14, 0.32, 0.5, 0.68, 0.86];
     for (int i = 0; i < fracs.length; i++) {
       final x = w * fracs[i];

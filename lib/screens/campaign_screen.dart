@@ -85,7 +85,7 @@ class _ChapterSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.royalGold.withOpacity(0.4)),
+        side: BorderSide(color: AppColors.royalGold.withValues(alpha: 0.4)),
       ),
       child: ExpansionTile(
         initiallyExpanded: initiallyExpanded,

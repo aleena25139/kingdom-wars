@@ -80,7 +80,7 @@ class CastlePainter {
     if (gold) {
       final glow = Paint()
         ..shader = RadialGradient(
-          colors: [_gold.withOpacity(0.35), _gold.withOpacity(0)],
+          colors: [_gold.withValues(alpha: 0.35), _gold.withValues(alpha: 0)],
         ).createShader(Rect.fromCircle(center: const Offset(50, 50), radius: 52));
       canvas.drawCircle(const Offset(50, 50), 52, glow);
     }
@@ -163,7 +163,7 @@ class CastlePainter {
 
   static void _bricks(Canvas c, Rect r, Color line) {
     final p = Paint()
-      ..color = line.withOpacity(0.45)
+      ..color = line.withValues(alpha: 0.45)
       ..strokeWidth = 0.4;
     for (var y = r.top + 5; y < r.bottom - 1; y += 5) {
       c.drawLine(Offset(r.left + 0.5, y), Offset(r.right - 0.5, y), p);
@@ -230,7 +230,7 @@ class CastlePainter {
       ..lineTo(cx + w / 2, baseY)
       ..lineTo(cx, baseY)
       ..close();
-    c.drawPath(shade, Paint()..color = Colors.black.withOpacity(0.2));
+    c.drawPath(shade, Paint()..color = Colors.black.withValues(alpha: 0.2));
     c.drawPath(
         path,
         Paint()
@@ -253,7 +253,7 @@ class CastlePainter {
           ..color = _outline);
     // little highlight
     c.drawCircle(Offset(cx - w * 0.15, baseY - w * 0.32), w * 0.07,
-        Paint()..color = Colors.white.withOpacity(0.5));
+        Paint()..color = Colors.white.withValues(alpha: 0.5));
   }
 
   static void _flag(Canvas c, double x, double y, _Pal p, double time, bool round,
@@ -298,7 +298,7 @@ class CastlePainter {
     c.drawPath(path, Paint()..color = p.gate);
     // portcullis bars
     final bars = Paint()
-      ..color = Colors.black.withOpacity(0.35)
+      ..color = Colors.black.withValues(alpha: 0.35)
       ..strokeWidth = 0.5;
     for (var i = 1; i < 4; i++) {
       final bx = x + w * i / 4;

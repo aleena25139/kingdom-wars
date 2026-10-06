@@ -101,13 +101,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                   left: (_cloudController.value * MediaQuery.of(context).size.width * (1 + i * 0.3)) %
                           (MediaQuery.of(context).size.width + 200) -
                       200,
-                  child: Icon(Icons.cloud, size: 60 + i * 10.0, color: Colors.white.withOpacity(0.08)),
+                  child: Icon(Icons.cloud, size: 60 + i * 10.0, color: Colors.white.withValues(alpha: 0.08)),
                 ),
               Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Icon(Icons.castle, size: 160, color: AppColors.deepPurple.withOpacity(0.5)),
+                child: Icon(Icons.castle, size: 160, color: AppColors.deepPurple.withValues(alpha: 0.5)),
               ),
               AnimatedBuilder(
                 animation: _torchController,
@@ -117,7 +117,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                   child: Icon(
                     Icons.local_fire_department,
                     size: 28 + _torchController.value * 6,
-                    color: AppColors.orange.withOpacity(0.7 + _torchController.value * 0.3),
+                    color: AppColors.orange.withValues(alpha: 0.7 + _torchController.value * 0.3),
                   ),
                 ),
               ),
@@ -129,7 +129,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                   child: Icon(
                     Icons.local_fire_department,
                     size: 28 + (1 - _torchController.value) * 6,
-                    color: AppColors.orange.withOpacity(0.7 + (1 - _torchController.value) * 0.3),
+                    color: AppColors.orange.withValues(alpha: 0.7 + (1 - _torchController.value) * 0.3),
                   ),
                 ),
               ),
@@ -237,7 +237,7 @@ class _MenuButton extends StatelessWidget {
         data.icon,
         color: data.iconColor,
         shadows: data.iconColor == AppColors.goldIcon
-            ? [Shadow(color: AppColors.goldIcon.withOpacity(0.7), blurRadius: 8)]
+            ? [Shadow(color: AppColors.goldIcon.withValues(alpha: 0.7), blurRadius: 8)]
             : null,
       ),
       label: Text(data.label, overflow: TextOverflow.ellipsis),

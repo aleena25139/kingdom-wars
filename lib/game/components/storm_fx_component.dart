@@ -7,11 +7,15 @@
 //                  ground lightning strikes, heal rings and "GRAWR!" barks.
 // It only READS BattleEngine's lists; nothing here affects gameplay.
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
+import '../../constants/unit_data.dart';
 import '../../models/battle_fx.dart';
+import '../../models/unit.dart';
+import '../../services/sprite_registry.dart';
 import '../kingdom_wars_game.dart';
 
 class StormFxComponent extends PositionComponent {
@@ -57,6 +61,12 @@ class StormFxComponent extends PositionComponent {
         case BattleEffectKind.blueBolt:
           _renderBolt(canvas, toScreen(e.x, e.y), toScreen(e.x2, e.y2), e, blue: true);
           break;
+        case BattleEffectKind.fireBreath:
+          _renderFireBreath(canvas, _breathMouth(toScreen(e.x, e.y), e, t), toScreen(e.x2, e.y2).translate(0, -14), e);
+          break;
+        case BattleEffectKind.magicBurst:
+          _renderMagicBurst(canvas, toScreen(e.x, e.y), e.radius * ppu, e);
+          break;
         case BattleEffectKind.skyFire:
           _renderSkyFire(canvas, toScreen(e.x, e.y), e);
           break;
@@ -79,12 +89,12 @@ class StormFxComponent extends PositionComponent {
       final pulse = 0.5 + 0.5 * math.sin(t * 16);
       canvas.drawOval(
         Rect.fromCenter(center: c, width: r * 2 * k, height: r * 1.2 * k),
-        Paint()..color = const Color(0xFF7C4DFF).withOpacity(0.18 + 0.12 * pulse),
+        Paint()..color = const Color(0xFF7C4DFF).withValues(alpha: 0.18 + 0.12 * pulse),
       );
       canvas.drawOval(
         Rect.fromCenter(center: c, width: r * 2, height: r * 1.2),
         Paint()
-          ..color = const Color(0xFFFF5252).withOpacity(0.5 + 0.4 * pulse)
+          ..color = const Color(0xFFFF5252).withValues(alpha: 0.5 + 0.4 * pulse)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
@@ -96,19 +106,19 @@ class StormFxComponent extends PositionComponent {
     // Charged ground.
     canvas.drawOval(
       Rect.fromCenter(center: c, width: r * 2, height: r * 1.2),
-      Paint()..color = const Color(0xFF4A2A9A).withOpacity(0.28 * fade),
+      Paint()..color = const Color(0xFF4A2A9A).withValues(alpha: 0.28 * fade),
     );
     canvas.drawOval(
       Rect.fromCenter(center: c, width: r * 2, height: r * 1.2),
       Paint()
-        ..color = const Color(0xFFB39DFF).withOpacity(0.7 * fade)
+        ..color = const Color(0xFFB39DFF).withValues(alpha: 0.7 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
     );
     _cloud(canvas, c.translate(0, -r * 0.9), r, fade, t, z.seed);
     // Rain curtain under the cloud.
     final rain = Paint()
-      ..color = const Color(0xFFCFE0FF).withOpacity(0.55 * fade)
+      ..color = const Color(0xFFCFE0FF).withValues(alpha: 0.55 * fade)
       ..strokeWidth = 1.3
       ..strokeCap = StrokeCap.round;
     for (var i = 0; i < 14; i++) {
@@ -120,9 +130,9 @@ class StormFxComponent extends PositionComponent {
   }
 
   void _cloud(Canvas canvas, Offset c, double r, double alpha, double t, int seed) {
-    final paint = Paint()..color = const Color(0xFF14121F).withOpacity(0.92 * alpha.clamp(0.0, 1.0));
+    final paint = Paint()..color = const Color(0xFF14121F).withValues(alpha: 0.92 * alpha.clamp(0.0, 1.0));
     final glow = Paint()
-      ..color = const Color(0xFF7C4DFF).withOpacity(0.25 * alpha.clamp(0.0, 1.0))
+      ..color = const Color(0xFF7C4DFF).withValues(alpha: 0.25 * alpha.clamp(0.0, 1.0))
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
     canvas.drawOval(Rect.fromCenter(center: c, width: r * 2.3, height: r * 0.9), glow);
     for (var i = 0; i < 6; i++) {
@@ -160,7 +170,7 @@ class StormFxComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = (blue ? const Color(0xFF2979FF) : const Color(0xFFB39DFF)).withOpacity(0.6 * fade)
+        ..color = (blue ? const Color(0xFF2979FF) : const Color(0xFFB39DFF)).withValues(alpha: 0.6 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 8
         ..strokeJoin = StrokeJoin.round
@@ -169,7 +179,7 @@ class StormFxComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = Colors.white.withOpacity(fade)
+        ..color = Colors.white.withValues(alpha: fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.4
         ..strokeJoin = StrokeJoin.round,
@@ -177,7 +187,7 @@ class StormFxComponent extends PositionComponent {
     canvas.drawCircle(
       b,
       9 * fade + 3,
-      Paint()..color = (blue ? const Color(0xFF80D8FF) : const Color(0xFFE1D5FF)).withOpacity(0.7 * fade),
+      Paint()..color = (blue ? const Color(0xFF80D8FF) : const Color(0xFFE1D5FF)).withValues(alpha: 0.7 * fade),
     );
   }
 
@@ -188,7 +198,7 @@ class StormFxComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = const Color(0xFF9FA8FF).withOpacity(0.6 * fade)
+        ..color = const Color(0xFF9FA8FF).withValues(alpha: 0.6 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 7
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
@@ -196,11 +206,11 @@ class StormFxComponent extends PositionComponent {
     canvas.drawPath(
       path,
       Paint()
-        ..color = Colors.white.withOpacity(fade)
+        ..color = Colors.white.withValues(alpha: fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.2,
     );
-    canvas.drawCircle(ground, 14 * (1 - fade) + 6, Paint()..color = Colors.white.withOpacity(0.55 * fade));
+    canvas.drawCircle(ground, 14 * (1 - fade) + 6, Paint()..color = Colors.white.withValues(alpha: 0.55 * fade));
   }
 
   // ------------------------------------------------------------ fire jet
@@ -233,22 +243,22 @@ class StormFxComponent extends PositionComponent {
     canvas.drawPath(
       cone(wide * 1.5),
       Paint()
-        ..color = const Color(0xFFFF6D00).withOpacity(0.4 * fade)
+        ..color = const Color(0xFFFF6D00).withValues(alpha: 0.4 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
-    canvas.drawPath(cone(wide), Paint()..color = const Color(0xFFE53900).withOpacity(0.9 * fade * flick));
-    canvas.drawPath(cone(wide * 0.66), Paint()..color = const Color(0xFFFF9800).withOpacity(fade));
-    canvas.drawPath(cone(wide * 0.32), Paint()..color = const Color(0xFFFFEE58).withOpacity(fade));
+    canvas.drawPath(cone(wide), Paint()..color = const Color(0xFFE53900).withValues(alpha: 0.9 * fade * flick));
+    canvas.drawPath(cone(wide * 0.66), Paint()..color = const Color(0xFFFF9800).withValues(alpha: fade));
+    canvas.drawPath(cone(wide * 0.32), Paint()..color = const Color(0xFFFFEE58).withValues(alpha: fade));
     // Burst of fire where it lands.
     canvas.drawCircle(
       tip,
       6.0 + 10.0 * math.min<double>(1.0, p * 2),
       Paint()
-        ..color = const Color(0xFFFF7043).withOpacity(0.55 * fade)
+        ..color = const Color(0xFFFF7043).withValues(alpha: 0.55 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
     // Sparks flying off.
-    final spark = Paint()..color = const Color(0xFFFFCC80).withOpacity(fade);
+    final spark = Paint()..color = const Color(0xFFFFCC80).withValues(alpha: fade);
     final rng = math.Random(e.seed);
     for (var i = 0; i < 7; i++) {
       final k = rng.nextDouble();
@@ -266,23 +276,23 @@ class StormFxComponent extends PositionComponent {
       c,
       r * (0.4 + 0.9 * grow),
       Paint()
-        ..color = const Color(0xFFFF6D00).withOpacity(0.5 * fade)
+        ..color = const Color(0xFFFF6D00).withValues(alpha: 0.5 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
     );
-    canvas.drawCircle(c, r * (0.25 + 0.6 * grow), Paint()..color = const Color(0xFFFFB300).withOpacity(0.8 * fade));
-    canvas.drawCircle(c, r * (0.12 + 0.3 * grow), Paint()..color = const Color(0xFFFFF59D).withOpacity(fade));
+    canvas.drawCircle(c, r * (0.25 + 0.6 * grow), Paint()..color = const Color(0xFFFFB300).withValues(alpha: 0.8 * fade));
+    canvas.drawCircle(c, r * (0.12 + 0.3 * grow), Paint()..color = const Color(0xFFFFF59D).withValues(alpha: fade));
     canvas.drawCircle(
       c,
       r * (0.5 + 1.1 * grow),
       Paint()
-        ..color = const Color(0xFFFF8A65).withOpacity(0.7 * fade)
+        ..color = const Color(0xFFFF8A65).withValues(alpha: 0.7 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3,
     );
     // Flying rock fragments.
     final rng = math.Random(e.seed);
-    final rock = Paint()..color = const Color(0xFF3E2723).withOpacity(fade);
-    final ember = Paint()..color = const Color(0xFFFFAB40).withOpacity(fade);
+    final rock = Paint()..color = const Color(0xFF3E2723).withValues(alpha: fade);
+    final ember = Paint()..color = const Color(0xFFFFAB40).withValues(alpha: fade);
     for (var i = 0; i < 9; i++) {
       final a = rng.nextDouble() * 2 * math.pi;
       final d = r * (0.3 + 1.0 * grow) * (0.6 + rng.nextDouble() * 0.6);
@@ -291,46 +301,276 @@ class StormFxComponent extends PositionComponent {
     }
   }
 
-  // ------------------------------------------------------------ sky fire
-  /// Paladin: a column of flame drops from the top of the sky onto [ground]
-  /// (first ~70% of the effect's life), then splashes out.
-  void _renderSkyFire(Canvas canvas, Offset ground, BattleEffect e) {
+  // ------------------------------------------------------------- helpers
+  /// Optional hero-power art (assets/kenney/effects/*), or null if not shipped.
+  ui.Image? _fxImage(String key) {
+    final path = SpriteRegistry.paths[key];
+    if (path == null) return null;
+    final fileName = path.replaceFirst('assets/', '');
+    return game.images.containsKey(fileName) ? game.images.fromCache(fileName) : null;
+  }
+
+  void _drawFx(Canvas canvas, ui.Image img, Rect dst, double opacity) {
+    canvas.drawImageRect(
+      img,
+      Rect.fromLTWH(0, 0, img.width.toDouble(), img.height.toDouble()),
+      dst,
+      Paint()
+        ..filterQuality = FilterQuality.medium
+        ..color = Colors.white.withValues(alpha: opacity.clamp(0.0, 1.0)),
+    );
+  }
+
+  /// Fire burst on the ground at [c], [size] px wide, k = 0..1 over its life.
+  void _drawFireBurst(Canvas canvas, Offset c, double size, double k) {
+    final fade = (1 - k).clamp(0.0, 1.0);
+    final grow = 0.55 + 0.6 * Curves.easeOut.transform(k);
+    final img = _fxImage('fx_fire_burst');
+    if (img != null) {
+      final w = size * grow;
+      final h = w * img.height / img.width;
+      _drawFx(canvas, img, Rect.fromLTWH(c.dx - w / 2, c.dy - h * 0.85, w, h), fade);
+      return;
+    }
+    // Fallback: a bonfire of flame tongues licking upward (no PNG needed).
+    canvas.drawCircle(
+      c.translate(0, -12),
+      size * 0.42 * grow,
+      Paint()
+        ..color = const Color(0xFFFF6A00).withValues(alpha: 0.30 * fade)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12),
+    );
+    const n = 9;
+    for (var layer = 0; layer < _flameLayers.length; layer++) {
+      for (var i = 0; i < n; i++) {
+        final fx = i / (n - 1) - 0.5;
+        final rnd = (math.sin(i * 12.9898) * 43758.5453).abs() % 1.0;
+        final h = 0.55 + 0.45 * rnd;
+        final L = size * 0.78 * h * grow;
+        final W = size * 0.13 * (1.15 - fx.abs());
+        final sway = math.sin(k * 20 + i * 1.9) * W * 0.6;
+        _flameLayer(
+          canvas,
+          c.translate(fx * size * 0.62, -4),
+          -math.pi / 2 + fx * 0.75 + math.sin(k * 16 + i) * 0.12,
+          L,
+          W,
+          fade,
+          sway,
+          layer,
+        );
+      }
+    }
+  }
+
+  // ------------------------------------------------------------ flames
+  // Four stacked layers, outer -> inner: (colour, size scale, opacity). Drawing
+  // a dark-red body, an orange middle, a yellow core and a pale-white heart
+  // inside every tongue is what makes it read as real, hot fire.
+  static const List<(int, double, double)> _flameLayers = [
+    (0xFFC62800, 1.00, 0.60),
+    (0xFFFF5A00, 0.84, 0.85),
+    (0xFFFFA000, 0.62, 0.92),
+    (0xFFFFF0B0, 0.36, 0.97),
+  ];
+
+  /// One flame tongue layer, base at [base], pointing along [angle].
+  void _flameLayer(Canvas canvas, Offset base, double angle, double L, double W, double alpha, double sway, int layer) {
+    if (alpha <= 0.01 || L < 2) return;
+    final (color, scale, op) = _flameLayers[layer];
+    final l = L * scale, w = W * scale, sw = sway * scale;
+    final path = Path()
+      ..moveTo(0, 0)
+      ..cubicTo(l * 0.15, -w * 1.5, l * 0.62, -w * 1.0 + sw, l, sw)
+      ..cubicTo(l * 0.62, w * 1.0 + sw, l * 0.15, w * 1.5, 0, 0)
+      ..close();
+    final paint = Paint()..color = Color(color).withValues(alpha: (op * alpha).clamp(0.0, 1.0));
+    if (layer == 0) paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.5);
+    canvas.save();
+    canvas.translate(base.dx, base.dy);
+    canvas.rotate(angle);
+    canvas.drawPath(path, paint);
+    canvas.restore();
+  }
+
+  /// The breath itself: a stream of flame tongues pouring out of the mouth
+  /// toward the target. Canvas is already translated + rotated so +x runs from
+  /// the mouth to the target. Particles keep flowing outward, flicker and fade.
+  void _drawFlameStream(Canvas canvas, double dist, double len, double p, double fade, int seed) {
+    const n = 20;
+    final rng = math.Random(seed);
+    final phase = List<double>.generate(n, (_) => rng.nextDouble());
+    final off = List<double>.generate(n, (_) => rng.nextDouble() - 0.5);
+
+    // Soft heat glow under the whole jet.
+    canvas.drawLine(
+      Offset.zero,
+      Offset(len, 0),
+      Paint()
+        ..color = const Color(0xFFFF8A00).withValues(alpha: 0.24 * fade)
+        ..strokeWidth = 22 + 22 * (len / dist)
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
+    );
+
+    final us = List<double>.generate(n, (i) => (p * 2.6 + i / n + phase[i] * 0.12) % 1.0);
+    for (var layer = 0; layer < _flameLayers.length; layer++) {
+      for (var i = 0; i < n; i++) {
+        final u = us[i];
+        final spread = 4 + u * 26;
+        final y = off[i] * spread + math.sin(p * 28 + i * 1.7) * (2 + 5 * u);
+        final L = 30 + 52 * u;
+        final W = 5 + 13 * u;
+        final a = fade * math.min(1.0, u * 7) * (1 - math.pow(u, 3).toDouble());
+        _flameLayer(
+          canvas,
+          Offset(u * len, y),
+          off[i] * 0.6 + math.sin(p * 21 + i) * 0.14,
+          L,
+          W,
+          a,
+          math.sin(p * 35 + i * 2.3) * W * 0.55,
+          layer,
+        );
+      }
+    }
+    // Flying sparks / embers.
+    final spark = Paint()..color = const Color(0xFFFFE082).withValues(alpha: 0.9 * fade);
+    for (var i = 0; i < 9; i++) {
+      final u = (p * 1.7 + i * 0.113 + phase[i] * 0.3) % 1.0;
+      final y = off[i] * (14 + u * 44) + math.sin(p * 18 + i) * 4;
+      canvas.drawCircle(Offset(u * len, y), 1.4 + (i % 3) * 0.7, spark);
+    }
+  }
+
+  // ------------------------------------------------------------ fire breath
+  // Unit sprites are drawn in a 30px box, centred on the unit's ground point
+  // (UnitComponent), and the Phoenix hovers 26px above it. The flame must start
+  // at the creature's MOUTH inside that box -- not at a fixed point far above
+  // it, which made the fire look like it was falling from the sky.
+  // Dragon / Phoenix are drawn big (UnitData.renderSizeFor) and flip to face
+  // their target, so the mouth sits on the side the creature is looking at.
+  Offset _breathMouth(Offset ground, BattleEffect e, double t) {
+    final box = e.creatureSize;
+    final side = e.facingLeft ? -1.0 : 1.0;
+    if (e.airborne) {
+      // Phoenix: the beak sits at the upper front of the sprite.
+      final hover = UnitData.hoverFor(UnitType.phoenix);
+      final bob = math.sin(t * 3.2) * 3.0;
+      return ground.translate(side * box * 0.27, -hover + bob - box * 0.15);
+    }
+    // Dragon: the mouth is at the front edge, just above the middle.
+    return ground.translate(side * box * 0.45, -box * 0.03);
+  }
+
+  /// Dragon / Phoenix: a jet of flame that grows out of the MOUTH, streams to
+  /// the target, then fades while a fire burst blooms on the enemy.
+  void _renderFireBreath(Canvas canvas, Offset mouth, Offset target, BattleEffect e) {
     final p = e.progress;
-    const fall = 0.7;
-    if (p < fall) {
-      final k = Curves.easeIn.transform(p / fall);
-      final top = ground.translate(0, -260);
-      final head = Offset.lerp(top, ground, k)!;
-      // Falling streak + fireball head.
-      final streak = Path()
-        ..moveTo(head.dx - 7, head.dy - 70)
-        ..lineTo(head.dx + 7, head.dy - 70)
-        ..lineTo(head.dx + 4, head.dy)
-        ..lineTo(head.dx - 4, head.dy)
-        ..close();
-      canvas.drawPath(
-        streak,
-        Paint()
-          ..color = const Color(0xFFFF6D00).withOpacity(0.55)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-      );
-      canvas.drawPath(streak, Paint()..color = const Color(0xFFFFA000).withOpacity(0.75));
-      canvas.drawCircle(head, 11, Paint()..color = const Color(0xFFFF7043));
-      canvas.drawCircle(head, 7, Paint()..color = const Color(0xFFFFCA28));
-      canvas.drawCircle(head, 3.5, Paint()..color = const Color(0xFFFFF9C4));
-      // Target ring warning on the ground.
-      canvas.drawOval(
-        Rect.fromCenter(center: ground, width: 48 * k + 12, height: 22 * k + 6),
-        Paint()
-          ..color = const Color(0xFFFFB300).withOpacity(0.7)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
+    final fade = p > 0.7 ? (1 - p) / 0.3 : 1.0;
+    final grow = Curves.easeOut.transform(math.min(1.0, p / 0.3));
+    final dx = target.dx - mouth.dx;
+    final dy = target.dy - mouth.dy;
+    final dist = math.sqrt(dx * dx + dy * dy);
+    if (dist < 4) return;
+    final angle = math.atan2(dy, dx);
+    final len = dist * grow;
+    final img = _fxImage('fx_fire_breath');
+
+    canvas.save();
+    canvas.translate(mouth.dx, mouth.dy);
+    canvas.rotate(angle);
+    if (img != null) {
+      // Art points right, its left-middle sits on the mouth.
+      final hh = (len * 0.38).clamp(34.0, 110.0);
+      final wobble = 1 + 0.06 * math.sin(p * 40);
+      _drawFx(canvas, img, Rect.fromLTWH(0, -hh * wobble / 2, len, hh * wobble), fade);
     } else {
-      final k = (p - fall) / (1 - fall);
-      final fade = (1 - k).clamp(0.0, 1.0);
-      canvas.drawCircle(ground, 12 + 22 * k, Paint()..color = const Color(0xFFFFB300).withOpacity(0.6 * fade));
-      canvas.drawCircle(ground, 6 + 10 * k, Paint()..color = Colors.white.withOpacity(0.8 * fade));
+      _drawFlameStream(canvas, dist, len, p, fade, e.seed);
+    }
+    canvas.restore();
+
+    if (p > 0.22) _drawFireBurst(canvas, target, 96, ((p - 0.22) / 0.78).clamp(0.0, 1.0));
+  }
+
+  // ------------------------------------------------------------ sky fire
+  /// Elf Prince: a column of fire falls out of the sky onto the ENEMY at
+  /// [ground] ([e.radius] seconds of falling), then explodes there.
+  void _renderSkyFire(Canvas canvas, Offset ground, BattleEffect e) {
+    final fallTime = math.max(0.2, e.radius);
+    final tFall = fallTime / e.life; // fraction of the effect spent falling
+    final p = e.progress;
+    final img = _fxImage('fx_sky_fire');
+    if (p < tFall) {
+      final k = Curves.easeIn.transform(p / tFall);
+      final top = ground.translate(0, -300);
+      final head = Offset.lerp(top, ground, k)!;
+      // Target ring on the ground so you can see where it will land.
+      canvas.drawOval(
+        Rect.fromCenter(center: ground, width: 70 * k + 16, height: 30 * k + 8),
+        Paint()
+          ..color = const Color(0xFFFFB300).withValues(alpha: 0.8)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5,
+      );
+      if (img != null) {
+        final w = 64.0;
+        final h = w * img.height / img.width;
+        _drawFx(canvas, img, Rect.fromLTWH(head.dx - w / 2, head.dy - h, w, h), 1.0);
+      } else {
+        final streak = Path()
+          ..moveTo(head.dx - 9, head.dy - 90)
+          ..lineTo(head.dx + 9, head.dy - 90)
+          ..lineTo(head.dx + 5, head.dy)
+          ..lineTo(head.dx - 5, head.dy)
+          ..close();
+        canvas.drawPath(
+          streak,
+          Paint()
+            ..color = const Color(0xFFFF6D00).withValues(alpha: 0.6)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+        );
+        canvas.drawPath(streak, Paint()..color = const Color(0xFFFFA000).withValues(alpha: 0.8));
+        canvas.drawCircle(head, 14, Paint()..color = const Color(0xFFFF7043));
+        canvas.drawCircle(head, 9, Paint()..color = const Color(0xFFFFCA28));
+        canvas.drawCircle(head, 4, Paint()..color = const Color(0xFFFFF9C4));
+      }
+    } else {
+      final k = ((p - tFall) / (1 - tFall)).clamp(0.0, 1.0);
+      _drawFireBurst(canvas, ground, 130, k);
+    }
+  }
+
+  // ---------------------------------------------------------- magic burst
+  /// Magician: the magic ball bursts into a glowing green-gold flower of light.
+  void _renderMagicBurst(Canvas canvas, Offset c, double radius, BattleEffect e) {
+    final k = e.progress;
+    final fade = (1 - k).clamp(0.0, 1.0);
+    final grow = 0.5 + 0.7 * Curves.easeOut.transform(k);
+    final img = _fxImage('fx_magic_burst');
+    final size = radius * 1.6 * grow;
+    if (img != null) {
+      final h = size * img.height / img.width;
+      _drawFx(canvas, img, Rect.fromLTWH(c.dx - size / 2, c.dy - h * 0.6, size, h), fade);
+      return;
+    }
+    final center = c.translate(0, -14);
+    canvas.drawCircle(center, size * 0.55, Paint()..color = const Color(0xFF69F0AE).withValues(alpha: 0.35 * fade));
+    canvas.drawCircle(
+      center,
+      size * 0.5,
+      Paint()
+        ..color = const Color(0xFFFFF59D).withValues(alpha: 0.9 * fade)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+    canvas.drawCircle(center, size * 0.18, Paint()..color = Colors.white.withValues(alpha: 0.9 * fade));
+    final rng = math.Random(e.seed);
+    final spark = Paint()..color = const Color(0xFFFFF176).withValues(alpha: fade);
+    for (var i = 0; i < 9; i++) {
+      final a = rng.nextDouble() * 2 * math.pi;
+      final d = size * (0.25 + 0.4 * k) * (0.7 + rng.nextDouble() * 0.6);
+      canvas.drawCircle(center + Offset(math.cos(a), math.sin(a)) * d, 2 + rng.nextDouble() * 2, spark);
     }
   }
 
@@ -347,15 +587,15 @@ class StormFxComponent extends PositionComponent {
       hand,
       orbR * 2.2,
       Paint()
-        ..color = const Color(0xFF7C4DFF).withOpacity(0.45 * fade)
+        ..color = const Color(0xFF7C4DFF).withValues(alpha: 0.45 * fade)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
-    canvas.drawCircle(hand, orbR, Paint()..color = const Color(0xFFB39DFF).withOpacity(0.95 * fade));
-    canvas.drawCircle(hand, orbR * 0.5, Paint()..color = Colors.white.withOpacity(fade));
+    canvas.drawCircle(hand, orbR, Paint()..color = const Color(0xFFB39DFF).withValues(alpha: 0.95 * fade));
+    canvas.drawCircle(hand, orbR * 0.5, Paint()..color = Colors.white.withValues(alpha: fade));
     // Crackling sparks orbiting the palm.
     final rng = math.Random(e.seed);
     final spark = Paint()
-      ..color = const Color(0xFFE1D5FF).withOpacity(fade)
+      ..color = const Color(0xFFE1D5FF).withValues(alpha: fade)
       ..strokeWidth = 1.6
       ..strokeCap = StrokeCap.round;
     for (var i = 0; i < 5; i++) {
@@ -372,7 +612,7 @@ class StormFxComponent extends PositionComponent {
       canvas.drawPath(
         path,
         Paint()
-          ..color = const Color(0xFF7C4DFF).withOpacity(0.6 * fade)
+          ..color = const Color(0xFF7C4DFF).withValues(alpha: 0.6 * fade)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 6
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
@@ -380,7 +620,7 @@ class StormFxComponent extends PositionComponent {
       canvas.drawPath(
         path,
         Paint()
-          ..color = Colors.white.withOpacity(fade)
+          ..color = Colors.white.withValues(alpha: fade)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
@@ -397,7 +637,7 @@ class StormFxComponent extends PositionComponent {
     final c = target.translate(0, -8);
     const r = 26.0;
     // Slash arc: sweeps from upper-right down to lower-left (knight faces left).
-    const start = -math.pi * 0.15;
+    final start = -math.pi * 0.15;
     final arc = math.pi * 0.95 * sweep;
     final rect = Rect.fromCircle(center: c, radius: r);
     canvas.drawArc(
@@ -406,7 +646,7 @@ class StormFxComponent extends PositionComponent {
       arc,
       false,
       Paint()
-        ..color = const Color(0xFF82B1FF).withOpacity(0.55 * fade)
+        ..color = const Color(0xFF82B1FF).withValues(alpha: 0.55 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 11
         ..strokeCap = StrokeCap.round
@@ -418,13 +658,13 @@ class StormFxComponent extends PositionComponent {
       arc,
       false,
       Paint()
-        ..color = Colors.white.withOpacity(fade)
+        ..color = Colors.white.withValues(alpha: fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.4
         ..strokeCap = StrokeCap.round,
     );
     final rng = math.Random(e.seed);
-    final spark = Paint()..color = const Color(0xFFBBDEFB).withOpacity(fade);
+    final spark = Paint()..color = const Color(0xFFBBDEFB).withValues(alpha: fade);
     for (var i = 0; i < 8; i++) {
       final a = start + rng.nextDouble() * arc;
       final d = r * (0.9 + rng.nextDouble() * 0.9) + 8 * p;
@@ -439,16 +679,16 @@ class StormFxComponent extends PositionComponent {
     canvas.drawOval(
       Rect.fromCenter(center: c, width: r * 2 * (0.3 + 0.7 * p), height: r * 1.2 * (0.3 + 0.7 * p)),
       Paint()
-        ..color = const Color(0xFFFFE082).withOpacity(0.8 * fade)
+        ..color = const Color(0xFFFFE082).withValues(alpha: 0.8 * fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3,
     );
     canvas.drawOval(
       Rect.fromCenter(center: c, width: r * 2 * p, height: r * 1.2 * p),
-      Paint()..color = const Color(0xFF69F0AE).withOpacity(0.18 * fade),
+      Paint()..color = const Color(0xFF69F0AE).withValues(alpha: 0.18 * fade),
     );
     final plus = Paint()
-      ..color = const Color(0xFF69F0AE).withOpacity(fade)
+      ..color = const Color(0xFF69F0AE).withValues(alpha: fade)
       ..strokeWidth = 2.4
       ..strokeCap = StrokeCap.round;
     for (var i = 0; i < 5; i++) {
@@ -468,10 +708,10 @@ class StormFxComponent extends PositionComponent {
       text: TextSpan(
         text: 'GRAWR!',
         style: TextStyle(
-          color: const Color(0xFFFFCA28).withOpacity(fade),
+          color: const Color(0xFFFFCA28).withValues(alpha: fade),
           fontSize: 12.0 + 4.0 * math.min<double>(1.0, p * 4),
           fontWeight: FontWeight.w900,
-          shadows: [Shadow(color: const Color(0xFFB71C1C).withOpacity(fade), blurRadius: 4)],
+          shadows: [Shadow(color: const Color(0xFFB71C1C).withValues(alpha: fade), blurRadius: 4)],
         ),
       ),
       textDirection: TextDirection.ltr,

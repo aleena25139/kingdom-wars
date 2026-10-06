@@ -151,7 +151,7 @@ class TownPainter extends CustomPainter {
     // --- placement grid hint ---
     if (showGrid && scale > 0.35) {
       final line = Paint()
-        ..color = (demolishMode ? Colors.redAccent : Colors.white).withOpacity(0.28)
+        ..color = (demolishMode ? Colors.redAccent : Colors.white).withValues(alpha: 0.28)
         ..strokeWidth = 1 / scale;
       final top = r0 * _tile;
       final bottom = (r1 + 1) * _tile;

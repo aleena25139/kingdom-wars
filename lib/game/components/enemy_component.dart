@@ -176,7 +176,7 @@ class EnemyComponent extends PositionComponent {
       if (tint != null) {
         canvas.saveLayer(
           rect,
-          Paint()..colorFilter = ColorFilter.mode(tint.withOpacity(0.45), BlendMode.srcATop),
+          Paint()..colorFilter = ColorFilter.mode(tint.withValues(alpha: 0.45), BlendMode.srcATop),
         );
       }
       final attacking = _attackElapsed < _attackDuration;
@@ -219,9 +219,9 @@ class EnemyComponent extends PositionComponent {
       final gap = open * 7.0 * k;
       canvas.drawOval(
         Rect.fromCenter(center: mouth.translate(dir * 2 * k, 0), width: 14 * k, height: gap + 2 * k),
-        Paint()..color = const Color(0xFF5A0A0A).withOpacity(0.9),
+        Paint()..color = const Color(0xFF5A0A0A).withValues(alpha: 0.9),
       );
-      final fang = Paint()..color = Colors.white.withOpacity(0.55 + 0.45 * open);
+      final fang = Paint()..color = Colors.white.withValues(alpha: 0.55 + 0.45 * open);
       for (var i = 0; i < 4; i++) {
         final x = mouth.dx - dir * (i * 3.6 * k - 3.0 * k); // front tooth -> back
         final len = (5.5 - (i == 0 ? 0 : 0.6 * i)) * k * (0.6 + 0.6 * open);
@@ -243,12 +243,12 @@ class EnemyComponent extends PositionComponent {
       final hand = Offset(mx(size.x * 0.14), size.y * 0.68);
       final sweep = open * 15 * k;
       final talon = Paint()
-        ..color = Colors.white.withOpacity(0.5 + 0.5 * open)
+        ..color = Colors.white.withValues(alpha: 0.5 + 0.5 * open)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.4 * k
         ..strokeCap = StrokeCap.round;
       final blood = Paint()
-        ..color = const Color(0xFFD32F2F).withOpacity(0.75 * open)
+        ..color = const Color(0xFFD32F2F).withValues(alpha: 0.75 * open)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.1 * k
         ..strokeCap = StrokeCap.round;
@@ -275,7 +275,7 @@ class EnemyComponent extends PositionComponent {
 
     if (biteStrike) {
       // Two rows of fang punctures + a few blood-red drops.
-      final tooth = Paint()..color = Colors.white.withOpacity(fade);
+      final tooth = Paint()..color = Colors.white.withValues(alpha: fade);
       for (var i = -2; i <= 2; i++) {
         final x = c.dx + i * 3.4 * k;
         final up = Path()
@@ -291,18 +291,18 @@ class EnemyComponent extends PositionComponent {
         canvas.drawPath(up, tooth);
         canvas.drawPath(down, tooth);
       }
-      final drop = Paint()..color = const Color(0xFFD32F2F).withOpacity(fade);
+      final drop = Paint()..color = const Color(0xFFD32F2F).withValues(alpha: fade);
       canvas.drawCircle(c + Offset(-3 * k, 6 * k), 1.4 * k, drop);
       canvas.drawCircle(c + Offset(4 * k, 7.5 * k), 1.1 * k, drop);
     } else {
       // Three parallel claw rakes.
       final slash = Paint()
-        ..color = Colors.white.withOpacity(fade)
+        ..color = Colors.white.withValues(alpha: fade)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.2 * k
         ..strokeCap = StrokeCap.round;
       final red = Paint()
-        ..color = const Color(0xFFD32F2F).withOpacity(fade * 0.8)
+        ..color = const Color(0xFFD32F2F).withValues(alpha: fade * 0.8)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0 * k
         ..strokeCap = StrokeCap.round;
@@ -350,11 +350,11 @@ class EnemyComponent extends PositionComponent {
       _updateAnimatedAttack(justStruck, dt);
       final activeLayer = (_attackAnimTimer > 0) ? _attackAnim! : _walkAnim!;
       activeLayer.paint = tint != null
-          ? (Paint()..colorFilter = ColorFilter.mode(tint.withOpacity(0.5), BlendMode.srcATop))
+          ? (Paint()..colorFilter = ColorFilter.mode(tint.withValues(alpha: 0.5), BlendMode.srcATop))
           : Paint();
     } else if (_walkAnim != null) {
       _walkAnim!.paint = tint != null
-          ? (Paint()..colorFilter = ColorFilter.mode(tint.withOpacity(0.5), BlendMode.srcATop))
+          ? (Paint()..colorFilter = ColorFilter.mode(tint.withValues(alpha: 0.5), BlendMode.srcATop))
           : Paint();
     }
 
@@ -395,9 +395,9 @@ class EnemyComponent extends PositionComponent {
       final flashColor = hurt ? Colors.white : const Color(0xFFFF3B30);
       final flashAmt = hurt ? 0.55 * (_hurtTimer / 0.12) : (strikeFlash ? 0.28 : 0.0);
       _staticSprite!.paint = flashAmt > 0
-          ? (Paint()..colorFilter = ColorFilter.mode(flashColor.withOpacity(flashAmt), BlendMode.srcATop))
+          ? (Paint()..colorFilter = ColorFilter.mode(flashColor.withValues(alpha: flashAmt), BlendMode.srcATop))
           : (tint != null
-              ? (Paint()..colorFilter = ColorFilter.mode(tint.withOpacity(0.5), BlendMode.srcATop))
+              ? (Paint()..colorFilter = ColorFilter.mode(tint.withValues(alpha: 0.5), BlendMode.srcATop))
               : Paint());
     } else if (_staticSprite != null) {
       if (_lungeTimer > 0) {
@@ -408,18 +408,18 @@ class EnemyComponent extends PositionComponent {
         final flashOpacity = (1 - progress) * 0.6;
         _staticSprite!.paint = Paint()
           ..colorFilter = ColorFilter.mode(
-            (tint ?? Colors.white).withOpacity(flashOpacity.clamp(0.0, 1.0)),
+            (tint ?? Colors.white).withValues(alpha: flashOpacity.clamp(0.0, 1.0)),
             BlendMode.srcATop,
           );
       } else {
         _staticSprite!.paint = _hurtTimer > 0
             ? (Paint()
               ..colorFilter = ColorFilter.mode(
-                Colors.white.withOpacity(0.5 * (_hurtTimer / 0.12)),
+                Colors.white.withValues(alpha: 0.5 * (_hurtTimer / 0.12)),
                 BlendMode.srcATop,
               ))
             : (tint != null
-                ? (Paint()..colorFilter = ColorFilter.mode(tint.withOpacity(0.5), BlendMode.srcATop))
+                ? (Paint()..colorFilter = ColorFilter.mode(tint.withValues(alpha: 0.5), BlendMode.srcATop))
                 : Paint());
       }
     }

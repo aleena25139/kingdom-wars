@@ -100,7 +100,7 @@ class _SpriteThumbState extends State<SpriteThumb> {
 
     if (widget.dim > 0) {
       content = ColorFiltered(
-        colorFilter: ColorFilter.mode(Colors.black.withOpacity(widget.dim.clamp(0.0, 1.0)), BlendMode.srcATop),
+        colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: widget.dim.clamp(0.0, 1.0)), BlendMode.srcATop),
         child: content,
       );
     }
@@ -144,7 +144,7 @@ class UnitAvatar extends StatelessWidget {
           Container(
             width: d,
             height: d,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: accent.withOpacity(0.25)),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: accent.withValues(alpha: 0.25)),
           ),
           SpriteThumb(
             spriteName: spriteName,

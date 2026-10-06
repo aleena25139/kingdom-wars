@@ -45,7 +45,7 @@ class _VictoryOverlayState extends State<VictoryOverlay> {
     final onHome = widget.onHome;
     final onNextLevel = widget.onNextLevel;
     return Container(
-      color: Colors.black.withOpacity(0.75),
+      color: Colors.black.withValues(alpha: 0.75),
       alignment: Alignment.center,
       child: Container(
         padding: const EdgeInsets.all(28),

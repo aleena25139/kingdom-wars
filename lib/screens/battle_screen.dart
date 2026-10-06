@@ -233,7 +233,7 @@ class _BattleScreenState extends State<BattleScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.darkPurple.withOpacity(0.9),
+                          color: AppColors.darkPurple.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.royalGold),
                         ),
@@ -329,9 +329,9 @@ class _ModeSwitch extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.darkPurple.withOpacity(0.85),
+        color: AppColors.darkPurple.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.royalGold.withOpacity(0.6)),
+        border: Border.all(color: AppColors.royalGold.withValues(alpha: 0.6)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -353,13 +353,13 @@ class _ModeSwitch extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.royalGold.withOpacity(0.25) : Colors.transparent,
+          color: selected ? AppColors.royalGold.withValues(alpha: 0.25) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? AppColors.royalGold : AppColors.textPrimary.withOpacity(0.6),
+            color: selected ? AppColors.royalGold : AppColors.textPrimary.withValues(alpha: 0.6),
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -429,14 +429,14 @@ class _FormationPainter extends CustomPainter {
         final taken = occupied.containsKey(id);
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect, const Radius.circular(6)),
-          Paint()..color = (isSel ? const Color(0xFFF2CE7C) : (taken ? Colors.white : const Color(0xFF69F0AE))).withOpacity(isSel ? 0.28 : 0.12),
+          Paint()..color = (isSel ? const Color(0xFFF2CE7C) : (taken ? Colors.white : const Color(0xFF69F0AE))).withValues(alpha: isSel ? 0.28 : 0.12),
         );
         canvas.drawRRect(
           RRect.fromRectAndRadius(rect, const Radius.circular(6)),
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = isSel ? 3 : 1.2
-            ..color = isSel ? const Color(0xFFF2CE7C) : Colors.white.withOpacity(0.45),
+            ..color = isSel ? const Color(0xFFF2CE7C) : Colors.white.withValues(alpha: 0.45),
         );
       }
     }

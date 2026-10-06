@@ -164,7 +164,7 @@ class _FormationScreenState extends State<FormationScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFF14331F),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColors.royalGold.withOpacity(0.6), width: 2),
+            border: Border.all(color: AppColors.royalGold.withValues(alpha: 0.6), width: 2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -201,11 +201,11 @@ class _FormationScreenState extends State<FormationScreen> {
             margin: const EdgeInsets.all(1),
             decoration: BoxDecoration(
               color: hovering
-                  ? AppColors.royalGold.withOpacity(0.35)
-                  : (col == 0 ? const Color(0x22FF5252) : Colors.white.withOpacity(0.05)),
+                  ? AppColors.royalGold.withValues(alpha: 0.35)
+                  : (col == 0 ? const Color(0x22FF5252) : Colors.white.withValues(alpha: 0.05)),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: isSelected ? AppColors.royalGold : Colors.white.withOpacity(0.12),
+                color: isSelected ? AppColors.royalGold : Colors.white.withValues(alpha: 0.12),
                 width: isSelected ? 2.5 : 1,
               ),
             ),
@@ -233,7 +233,7 @@ class _FormationScreenState extends State<FormationScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 3),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.65),
+              color: Colors.black.withValues(alpha: 0.65),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text('${slot.level}', style: const TextStyle(color: AppColors.royalGold, fontSize: 9, fontWeight: FontWeight.bold)),
@@ -344,7 +344,7 @@ class _FormationScreenState extends State<FormationScreen> {
       decoration: BoxDecoration(
         color: AppColors.deepPurple,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.royalGold.withOpacity(0.5)),
+        border: Border.all(color: AppColors.royalGold.withValues(alpha: 0.5)),
       ),
       child: SingleChildScrollView(
         child: Column(

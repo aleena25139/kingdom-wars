@@ -93,7 +93,7 @@ class _PauseMenuOverlayState extends State<PauseMenuOverlay> {
   Widget build(BuildContext context) {
     if (_countdown != null) {
       return Container(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         alignment: Alignment.center,
         child: Text(
           '$_countdown',
@@ -103,7 +103,7 @@ class _PauseMenuOverlayState extends State<PauseMenuOverlay> {
     }
 
     return Container(
-      color: Colors.black.withOpacity(0.75),
+      color: Colors.black.withValues(alpha: 0.75),
       alignment: Alignment.center,
       child: Container(
         padding: const EdgeInsets.all(28),

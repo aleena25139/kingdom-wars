@@ -190,7 +190,7 @@ class _MpBar extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
-            boxShadow: low ? [BoxShadow(color: color.withOpacity(0.8), blurRadius: 8)] : null,
+            boxShadow: low ? [BoxShadow(color: color.withValues(alpha: 0.8), blurRadius: 8)] : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6),

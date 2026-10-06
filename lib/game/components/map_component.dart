@@ -86,7 +86,7 @@ class MapComponent extends PositionComponent {
       Offset(0, groundTop),
       Offset(playFieldWidth, groundTop),
       Paint()
-        ..color = AppColors.royalGold.withOpacity(0.22 + 0.18 * daylight)
+        ..color = AppColors.royalGold.withValues(alpha: 0.22 + 0.18 * daylight)
         ..strokeWidth = 2,
     );
 
@@ -117,7 +117,7 @@ class MapComponent extends PositionComponent {
       if (nightTint > 0.01) {
         canvas.drawRect(
           Rect.fromLTWH(0, groundTop, playFieldWidth, playFieldHeight - groundTop),
-          Paint()..color = Colors.black.withOpacity(nightTint),
+          Paint()..color = Colors.black.withValues(alpha: nightTint),
         );
       }
     }
@@ -168,7 +168,7 @@ class MapComponent extends PositionComponent {
       center,
       isSun ? 46 : 30,
       Paint()
-        ..color = (isSun ? const Color(0xFFFFE9A8) : const Color(0xFFDDE6F5)).withOpacity(0.2 * glow)
+        ..color = (isSun ? const Color(0xFFFFE9A8) : const Color(0xFFDDE6F5)).withValues(alpha: 0.2 * glow)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 24),
     );
 
@@ -184,7 +184,7 @@ class MapComponent extends PositionComponent {
       final sunColor = Color.lerp(horizonColor, noonColor, noonness)!;
       // A soft warm halo lingers around the low morning/evening sun and
       // fades out as it climbs toward noon.
-      canvas.drawCircle(center, 34, Paint()..color = horizonColor.withOpacity(0.28 * (1 - noonness)));
+      canvas.drawCircle(center, 34, Paint()..color = horizonColor.withValues(alpha: 0.28 * (1 - noonness)));
       canvas.drawCircle(center, 22, Paint()..color = sunColor);
     } else {
       canvas.drawCircle(center, 16, Paint()..color = const Color(0xFFF1F4FA));
@@ -199,7 +199,7 @@ class MapComponent extends PositionComponent {
 
   void _drawClouds(Canvas canvas, double w, double skyHeight, double daylight) {
     final t = game.dayNightClock;
-    final paint = Paint()..color = Colors.white.withOpacity(0.75 * daylight);
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.75 * daylight);
     for (final cloud in _clouds) {
       final span = w + 160;
       final travel = ((cloud.startFrac * span) + t * cloud.speed) % span - 80;
@@ -227,7 +227,7 @@ class MapComponent extends PositionComponent {
       canvas.drawCircle(
         Offset(slot.dx * w, slot.dy * skyHeight),
         1.6,
-        Paint()..color = Colors.white.withOpacity(opacity * (0.4 + 0.6 * twinkle)),
+        Paint()..color = Colors.white.withValues(alpha: opacity * (0.4 + 0.6 * twinkle)),
       );
     }
   }
@@ -256,7 +256,7 @@ class MapComponent extends PositionComponent {
     if (intensity <= 0.01) return;
 
     final t = game.dayNightClock;
-    final paint = Paint()..color = Colors.white.withOpacity(0.8 * intensity);
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.8 * intensity);
     for (int i = 0; i < _snowXFracs.length; i++) {
       // Each flake has its own fall speed and a gentle side-to-side drift so
       // the flurry doesn't read as identical flakes falling in lockstep.
@@ -309,7 +309,7 @@ class MapComponent extends PositionComponent {
     );
 
     // --- Heavy storm clouds rolling across.
-    final cloudPaint = Paint()..color = const Color(0xFF0B0B18).withOpacity(0.85);
+    final cloudPaint = Paint()..color = const Color(0xFF0B0B18).withValues(alpha: 0.85);
     for (int i = 0; i < 6; i++) {
       final span = w + 240;
       final cx = ((i * 0.19 * span) + t * (10 + i * 2.5)) % span - 120;
@@ -336,7 +336,7 @@ class MapComponent extends PositionComponent {
       canvas.drawPath(
         bolt,
         Paint()
-          ..color = const Color(0xFFB39DFF).withOpacity(0.6 * flash)
+          ..color = const Color(0xFFB39DFF).withValues(alpha: 0.6 * flash)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 9
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
@@ -344,7 +344,7 @@ class MapComponent extends PositionComponent {
       canvas.drawPath(
         bolt,
         Paint()
-          ..color = Colors.white.withOpacity(flash)
+          ..color = Colors.white.withValues(alpha: flash)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.6
           ..strokeJoin = StrokeJoin.round,
@@ -356,7 +356,7 @@ class MapComponent extends PositionComponent {
       Offset(0, groundTop),
       Offset(w, groundTop),
       Paint()
-        ..color = const Color(0xFFFF6A00).withOpacity(0.45)
+        ..color = const Color(0xFFFF6A00).withValues(alpha: 0.45)
         ..strokeWidth = 2,
     );
 
@@ -369,7 +369,7 @@ class MapComponent extends PositionComponent {
           sprite.render(canvas, position: Vector2(x, y), size: Vector2.all(tileSize));
         }
       }
-      canvas.drawRect(groundRect, Paint()..color = Colors.black.withOpacity(0.25));
+      canvas.drawRect(groundRect, Paint()..color = Colors.black.withValues(alpha: 0.25));
     } else {
       canvas.drawRect(
         groundRect,
@@ -382,7 +382,7 @@ class MapComponent extends PositionComponent {
       );
       // Glowing lava-like cracks in the scorched earth.
       final crack = Paint()
-        ..color = const Color(0xFFFF5A00).withOpacity(0.35 + 0.15 * math.sin(t * 3))
+        ..color = const Color(0xFFFF5A00).withValues(alpha: 0.35 + 0.15 * math.sin(t * 3))
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6;
       for (int i = 0; i < 9; i++) {
@@ -416,13 +416,13 @@ class MapComponent extends PositionComponent {
       final speed = 22.0 + (i % 5) * 9;
       final y = h - ((t * speed + i * 41) % (h - groundTop + 30));
       final x = (w * ((i * 0.0417) % 1.0)) + math.sin(t * 1.3 + i) * 10;
-      ember.color = const Color(0xFFFFA726).withOpacity(0.35 + 0.4 * ((i % 3) / 3));
+      ember.color = const Color(0xFFFFA726).withValues(alpha: 0.35 + 0.4 * ((i % 3) / 3));
       canvas.drawCircle(Offset(x, y), 1.4 + (i % 3) * 0.5, ember);
     }
 
     // --- Rain: fast slanted streaks across the whole screen.
     final rain = Paint()
-      ..color = const Color(0xFFBBD0FF).withOpacity(0.35)
+      ..color = const Color(0xFFBBD0FF).withValues(alpha: 0.35)
       ..strokeWidth = 1.2
       ..strokeCap = StrokeCap.round;
     for (int i = 0; i < 70; i++) {
@@ -433,11 +433,11 @@ class MapComponent extends PositionComponent {
     }
 
     // --- Darkness over everything, then the lightning flash on top.
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = Colors.black.withOpacity(0.18));
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = Colors.black.withValues(alpha: 0.18));
     if (flash > 0.02) {
       canvas.drawRect(
         Rect.fromLTWH(0, 0, w, h),
-        Paint()..color = const Color(0xFFDDE4FF).withOpacity(0.38 * flash),
+        Paint()..color = const Color(0xFFDDE4FF).withValues(alpha: 0.38 * flash),
       );
     }
   }
@@ -450,7 +450,7 @@ class MapComponent extends PositionComponent {
       Offset(x, baseY - size * 0.5),
       size * 1.5,
       Paint()
-        ..color = const Color(0xFFFF6D00).withOpacity(0.22 * flick)
+        ..color = const Color(0xFFFF6D00).withValues(alpha: 0.22 * flick)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12),
     );
     Path teardrop(double s) => Path()
@@ -458,7 +458,7 @@ class MapComponent extends PositionComponent {
       ..quadraticBezierTo(x - s * 0.7, baseY - s * 0.8, x + sway, baseY - s * 1.7 * flick)
       ..quadraticBezierTo(x + s * 0.7, baseY - s * 0.8, x + s * 0.55, baseY)
       ..close();
-    canvas.drawPath(teardrop(size), Paint()..color = const Color(0xFFE53900).withOpacity(0.92));
+    canvas.drawPath(teardrop(size), Paint()..color = const Color(0xFFE53900).withValues(alpha: 0.92));
     canvas.drawPath(teardrop(size * 0.66), Paint()..color = const Color(0xFFFF9800));
     canvas.drawPath(teardrop(size * 0.34), Paint()..color = const Color(0xFFFFEE58));
   }

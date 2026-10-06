@@ -1,4 +1,4 @@
-// Thin wrapper around flame_audio for music + SFX playback. Singleton so
+﻿// Thin wrapper around flame_audio for music + SFX playback. Singleton so
 // screens/widgets can call it directly (SoundService.instance.playButtonTap(),
 // .playCue(), .playMusic()) without threading it through Provider. Respects
 // PlayerProgress.musicEnabled / sfxEnabled.
@@ -8,7 +8,7 @@
 //   sfx/game_buttons.mp3      every button tap
 //   sfx/game_vfx.mp3          generic "something happened" sound
 //   sfx/*.wav                 one file per SoundCue (creature voices, fight
-//                             sounds) — see _cues below. Drop in your own
+//                             sounds) â€” see _cues below. Drop in your own
 //                             file with the same name to replace any of them.
 //
 // Mixing rules, so the game never turns into noise:
@@ -21,8 +21,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-// ignore: depend_on_referenced_packages
-import 'package:audioplayers/audioplayers.dart' show AudioContextConfig, AudioContextConfigFocus, AudioPlayer;
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 
@@ -132,7 +130,7 @@ class SoundService {
       try {
         await FlameAudio.audioCache.load(f);
       } catch (e) {
-        // A missing file shouldn't crash the app — that sound just stays silent.
+        // A missing file shouldn't crash the app â€” that sound just stays silent.
         // The console tells you WHICH file is missing / not in pubspec.yaml.
         debugPrint('SoundService: could not load assets/audio/$f ($e)');
       }

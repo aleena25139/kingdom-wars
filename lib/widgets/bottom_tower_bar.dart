@@ -63,10 +63,10 @@ class BottomTowerBar extends StatelessWidget {
                   width: 56,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.royalGold.withOpacity(0.25) : Colors.transparent,
+                    color: isSelected ? AppColors.royalGold.withValues(alpha: 0.25) : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isSelected ? AppColors.royalGold : AppColors.cyan.withOpacity(0.4),
+                      color: isSelected ? AppColors.royalGold : AppColors.cyan.withValues(alpha: 0.4),
                       width: isSelected ? 2 : 1,
                     ),
                   ),

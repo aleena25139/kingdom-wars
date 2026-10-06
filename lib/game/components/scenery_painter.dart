@@ -159,7 +159,7 @@ class SceneryPainter {
     final t = _tint;
     return Paint()
       ..filterQuality = FilterQuality.medium
-      ..colorFilter = t > 0.01 ? ColorFilter.mode(Colors.black.withOpacity(t), BlendMode.srcATop) : null;
+      ..colorFilter = t > 0.01 ? ColorFilter.mode(Colors.black.withValues(alpha: t), BlendMode.srcATop) : null;
   }
 
   Color _dim(Color c) => Color.lerp(c, Colors.black, _tint)!;
@@ -261,7 +261,7 @@ class SceneryPainter {
         for (final o in [Offset(0, -h * 0.72), Offset(-h * 0.2, -h * 0.58), Offset(h * 0.2, -h * 0.58)]) {
           canvas.drawCircle(o, h * 0.26, leaf);
         }
-        canvas.drawCircle(Offset(-h * 0.08, -h * 0.74), h * 0.14, Paint()..color = _dim(const Color(0xFF66BB6A)).withOpacity(0.55));
+        canvas.drawCircle(Offset(-h * 0.08, -h * 0.74), h * 0.14, Paint()..color = _dim(const Color(0xFF66BB6A)).withValues(alpha: 0.55));
         break;
       case _Biome.snow:
         canvas.drawRect(Rect.fromLTWH(-h * 0.04, -h * 0.12, h * 0.08, h * 0.12), trunk);

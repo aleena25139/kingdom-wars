@@ -246,7 +246,7 @@ class CreaturePainter {
 
     // Claw-rake slash marks in front of the lizard.
     if (clawS > 0.2) {
-      final sp = _s(Colors.white.withOpacity(clawS.clamp(0.0, 1.0)), 2.2);
+      final sp = _s(Colors.white.withValues(alpha: clawS.clamp(0.0, 1.0)), 2.2);
       for (var i = 0; i < 3; i++) {
         final path = Path()
           ..moveTo(88 + hx + i * 2.0, 34 + i * 7.0 + bob)
@@ -327,7 +327,7 @@ class CreaturePainter {
     final hand = shoulder + Offset(math.cos(a), math.sin(a)) * 27;
     if (clawP > 0.35 && clawP < 0.72) {
       c.drawArc(Rect.fromCircle(center: shoulder, radius: 31), -1.0, a + 1.0, false,
-          _s(Colors.white.withOpacity(0.55), 3));
+          _s(Colors.white.withValues(alpha: 0.55), 3));
     }
     c.drawLine(shoulder, hand, _s(body, 12));
     c.drawLine(shoulder, Offset.lerp(shoulder, hand, 0.55)!, _s(dark, 3));
@@ -476,7 +476,7 @@ class CreaturePainter {
     c.drawCircle(const Offset(46, 35), 1.3, _f(Colors.black));
     c.drawCircle(const Offset(54, 35), 1.3, _f(Colors.black));
     c.drawLine(const Offset(78, 92), const Offset(78, 28), _s(const Color(0xFF8D6E63), 4));
-    c.drawCircle(const Offset(78, 22), 11, _f(const Color(0xFF26C6DA).withOpacity(0.35)));
+    c.drawCircle(const Offset(78, 22), 11, _f(const Color(0xFF26C6DA).withValues(alpha: 0.35)));
     c.drawCircle(const Offset(78, 22), 6.5, _f(const Color(0xFF4DD0E1)));
     c.drawCircle(const Offset(76, 20), 2, _f(Colors.white));
     c.drawLine(const Offset(62, 52), const Offset(76, 40), _s(const Color(0xFFFFCC99), 4));
@@ -500,7 +500,7 @@ class CreaturePainter {
     _poly(c, const [Offset(70, 24), Offset(68, 10), Offset(76, 22)], _f(const Color(0xFFFFF3D6)));
     c.drawCircle(const Offset(78, 30), 2.6, _f(const Color(0xFFFFEB3B)));
     _teeth(c, const Offset(84, 43), const Offset(96, 39), 3, 3, const Offset(0, -1), _f(_tooth));
-    c.drawCircle(const Offset(100, 38), 4, _f(const Color(0xFFFF9800).withOpacity(0.8)));
+    c.drawCircle(const Offset(100, 38), 4, _f(const Color(0xFFFF9800).withValues(alpha: 0.8)));
   }
 
   static void _panda(Canvas c) {
