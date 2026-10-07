@@ -460,7 +460,7 @@ class StormFxComponent extends PositionComponent {
       return ground.translate(side * box * 0.27, -hover + bob - box * 0.15);
     }
     // Dragon: the mouth is at the front edge, just above the middle.
-    return ground.translate(side * box * 0.45, -box * 0.03);
+    return ground.translate(side * box * 0.46, -box * 0.10 - e.hover);
   }
 
   /// Dragon / Phoenix: a jet of flame that grows out of the MOUTH, streams to

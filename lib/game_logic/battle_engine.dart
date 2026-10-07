@@ -898,15 +898,19 @@ class BattleEngine {
           y: enemy.y,
           life: 0.6,
         ));
-        effects.add(BattleEffect(
-          kind: BattleEffectKind.fireJet,
-          x: enemy.x,
-          y: enemy.y,
-          x2: playerCastle.x + 0.5,
-          y2: playerCastle.y,
-          life: 0.45,
-          seed: _rng.nextInt(1 << 20),
-        ));
+        if (enemy.type == EnemyType.blackDragon) {
+          effects.add(_blackDragonBreath(enemy, playerCastle.x + 0.5, playerCastle.y));
+        } else {
+          effects.add(BattleEffect(
+            kind: BattleEffectKind.fireJet,
+            x: enemy.x,
+            y: enemy.y,
+            x2: playerCastle.x + 0.5,
+            y2: playerCastle.y,
+            life: 0.45,
+            seed: _rng.nextInt(1 << 20),
+          ));
+        }
         break;
       case EnemyAttackKind.stormSummon:
         _enemySummonStorm(enemy, playerCastle.x + 0.4, playerCastle.y);
@@ -1089,15 +1093,35 @@ class BattleEngine {
       if (other.id != target.id) other.takeDamage(splash);
     }
     effects.add(BattleEffect(kind: BattleEffectKind.bark, x: enemy.x, y: enemy.y, life: 0.6));
-    effects.add(BattleEffect(
-      kind: BattleEffectKind.fireJet,
+    if (enemy.type == EnemyType.blackDragon) {
+      effects.add(_blackDragonBreath(enemy, target.x, target.y));
+    } else {
+      effects.add(BattleEffect(
+        kind: BattleEffectKind.fireJet,
+        x: enemy.x,
+        y: enemy.y,
+        x2: target.x,
+        y2: target.y,
+        life: 0.45,
+        seed: _rng.nextInt(1 << 20),
+      ));
+    }
+  }
+
+  /// Black dragon: the flame streams out of its MOUTH (same effect as the good dragon).
+  BattleEffect _blackDragonBreath(Enemy enemy, double tx, double ty) {
+    return BattleEffect(
+      kind: BattleEffectKind.fireBreath,
       x: enemy.x,
       y: enemy.y,
-      x2: target.x,
-      y2: target.y,
-      life: 0.45,
+      x2: tx,
+      y2: ty,
+      life: 0.75,
       seed: _rng.nextInt(1 << 20),
-    ));
+      facingLeft: enemy.facingLeft,
+      creatureSize: 120.0,
+      hover: 14.0,
+    );
   }
 
   static const int _maxStormZones = 8;

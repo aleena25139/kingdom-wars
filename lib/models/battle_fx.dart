@@ -64,6 +64,8 @@ class BattleEffect {
   // so the flame starts at the correct side of the mouth.
   final bool facingLeft;
   final double creatureSize;
+  // fireBreath only: px the breather floats above its ground point (black dragon).
+  final double hover;
   double age = 0;
 
   BattleEffect({
@@ -78,6 +80,7 @@ class BattleEffect {
     this.airborne = false,
     this.facingLeft = false,
     this.creatureSize = 30.0,
+    this.hover = 0.0,
   });
 
   double get progress => (age / life).clamp(0.0, 1.0);
