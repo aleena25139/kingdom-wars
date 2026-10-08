@@ -191,10 +191,15 @@ class _ActionButton extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
               unlockDiamondCost > 0 ? '$unlockCost 🪙 + $unlockDiamondCost 💎' : '$unlockCost 🪙',
               textAlign: TextAlign.center,
+              maxLines: 1,
+              softWrap: false,
               style: const TextStyle(color: AppColors.royalGold, fontSize: 10),
+            ),
             ),
           ],
         ),
