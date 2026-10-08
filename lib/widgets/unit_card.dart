@@ -184,7 +184,11 @@ class _ActionButton extends StatelessWidget {
                       onUnlock?.call();
                     }
                   : null,
-              child: const Text('UNLOCK', style: TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 6)),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('UNLOCK', maxLines: 1, softWrap: false, style: TextStyle(fontSize: 12)),
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -216,7 +220,11 @@ class _ActionButton extends StatelessWidget {
                     onUpgrade?.call();
                   }
                 : null,
-            child: const Text('UPGRADE', style: TextStyle(fontSize: 12)),
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 6)),
+            child: const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text('UPGRADE', maxLines: 1, softWrap: false, style: TextStyle(fontSize: 12)),
+            ),
           ),
           const SizedBox(height: 4),
           Text('$upgradeCost 🪙', style: const TextStyle(color: AppColors.royalGold, fontSize: 10)),
