@@ -240,7 +240,11 @@ class _MenuButton extends StatelessWidget {
             ? [Shadow(color: AppColors.goldIcon.withValues(alpha: 0.7), blurRadius: 8)]
             : null,
       ),
-      label: Text(data.label, overflow: TextOverflow.ellipsis),
+      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10)),
+      label: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(data.label, maxLines: 1, softWrap: false),
+      ),
     );
   }
 }
