@@ -231,12 +231,12 @@ class KingdomWarsGame extends FlameGame {
       final fileName = path.split('/').last;
       try {
         final key = fileName == path ? path : path.replaceFirst('assets/', '');
-        final img = await images.load(key);
+        final img = await images.load(key).timeout(const Duration(seconds: 8));
         // Characters/towers/projectiles must never show a white box: if the
         // PNG has an opaque white/light backdrop, make it transparent.
         // (Map tiles are meant to be opaque, so they're skipped.)
         if (!path.contains('/tiles/') && !path.contains('/ui/')) {
-          var out = await SpriteCleaner.removeWhiteBackground(img);
+          var out = await SpriteCleaner.removeWhiteBackground(img).timeout(const Duration(seconds: 8), onTimeout: () => img);
           if (path.contains('/scenery/') || path.contains('/effects/')) {
             // Mountains / trees / grass: exact crop so trees & tufts stand on
             // their bottom edge and mountains sit flush on the horizon.
@@ -262,7 +262,41 @@ class KingdomWarsGame extends FlameGame {
     dayNightClock += dt;
     provider.tickBattle(dt);
     _playBattleSounds();
+    _ensureCoreComponents(dt);
     _syncComponents();
+  }
+
+  double _healTimer = 0;
+
+  /// Self-heal: if the map / castle ever goes missing (screen shows only the
+  /// background while the battle sounds keep playing) put them back. Also
+  /// re-binds the castle when a new battle replaced the engine.
+  void _ensureCoreComponents(double dt) {
+    _healTimer -= dt;
+    if (_healTimer > 0) return;
+    _healTimer = 0.5;
+    final battle = provider.gameEngine.activeBattle;
+    if (battle == null) return;
+    var added = false;
+    if (children.whereType<MapComponent>().isEmpty) {
+      add(MapComponent(game: this));
+      added = true;
+    }
+    if (children.whereType<PathComponent>().isEmpty) {
+      add(PathComponent(game: this));
+      added = true;
+    }
+    if (children.whereType<StormFxComponent>().isEmpty) {
+      add(StormFxComponent(game: this));
+      added = true;
+    }
+    if (!identical(playerCastleComponent.castle, battle.playerCastle)) {
+      if (playerCastleComponent.isMounted) playerCastleComponent.removeFromParent();
+      playerCastleComponent = CastleComponent(castle: battle.playerCastle, game: this);
+      add(playerCastleComponent);
+      added = true;
+    }
+    if (added) _healTimer = 2.0;
   }
 
   /// Hands every sound the engine queued this frame to SoundService.

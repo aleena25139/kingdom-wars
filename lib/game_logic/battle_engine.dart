@@ -299,7 +299,7 @@ class BattleEngine {
       // wave list, so we spawn directly here at a fixed cadence.
       _endlessSpawnTimer -= dt;
       if (_endlessSpawnTimer <= 0) {
-        _endlessSpawnTimer = max(0.4, 1.5 - _endlessWaveCounter * 0.02);
+        _endlessSpawnTimer = max(0.5, 3.0 - _endlessWaveCounter * 0.12);
         final endlessEnemy = _spawnEndlessEnemy();
         enemies.add(endlessEnemy);
         _announceSpawns([endlessEnemy]);
@@ -388,7 +388,8 @@ class BattleEngine {
     }
   }
 
-  double _endlessSpawnTimer = 1.5;
+  double _endlessSpawnTimer = 2.5;
+  int _endlessSpawnCount = 0;
 
   // Panda Warrior strikes anything within this distance of his slot (a bit
   // longer than the Lizard/Monster's own reach, so nothing out-ranges him).
@@ -402,7 +403,7 @@ class BattleEngine {
       _dragonWaveMarker = _endlessWaveCounter;
       _dragonsThisWave = 0;
     }
-    final quota = (_endlessWaveCounter % 5 == 4) ? 2 : 1;
+    final quota = (1 + _endlessWaveCounter ~/ 10).clamp(1, 3).toInt();
     return _dragonsThisWave < quota && _timeSinceEndlessWaveStart >= 6.0 * (_dragonsThisWave + 1);
   }
 
@@ -411,30 +412,37 @@ class BattleEngine {
     // Once things ramp up a bit, mix in skeleton archers, Lizards and
     // Monsters alongside the basic melee skeletons for variety, same 5-slot
     // pattern campaign waves use (see LevelData._enemyTypeForSpawn).
-    EnemyType type;
-    if (_endlessWaveCounter < 1) {
-      type = EnemyType.skeleton;
-    } else if (_blackDragonDue()) {
-      // Bad dragon: from the 2nd endless wave on, one black dragon flies in
-      // each wave (two on every 5th wave), a few seconds after the wave starts.
+    // Endless: the army grows SLOWLY. Wave 1 is skeletons only, then archers,
+    // goblins, lizards, a first black dragon and monsters join one by one.
+    EnemyType type = EnemyType.skeleton;
+    final w = _endlessWaveCounter; // 0 = first wave
+    final n = _endlessSpawnCount++;
+    if (w >= 6 && _blackDragonDue()) {
       type = EnemyType.blackDragon;
       _dragonsThisWave++;
     } else {
-      switch (enemies.length % 5) {
+      switch (n % 6) {
+        case 1:
+          if (w >= 1) type = EnemyType.skeletonArcher;
+          break;
         case 2:
-          type = EnemyType.skeletonArcher;
+          if (w >= 2) type = EnemyType.goblin;
           break;
         case 3:
-          type = EnemyType.lizard;
+          if (w >= 4) type = EnemyType.lizard;
           break;
         case 4:
-          type = EnemyType.monster; // TEST: from the first endless wave (orig: wave >= 3)
+          if (w >= 9) {
+            type = EnemyType.lizard;
+          } else if (w >= 3) {
+            type = EnemyType.goblin;
+          }
           break;
-        case 0:
-          type = EnemyType.goblin; // goblin packs in endless too
+        case 5:
+          if (w >= 7) type = EnemyType.monster;
           break;
         default:
-          type = EnemyType.skeleton;
+          break;
       }
     }
     final def = EnemyData.defFor(type);

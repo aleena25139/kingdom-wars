@@ -39,7 +39,8 @@ class BattleScreen extends StatefulWidget {
 }
 
 class _BattleScreenState extends State<BattleScreen> {
-  late final KingdomWarsGame _game;
+  late KingdomWarsGame _game;
+  int _gameGen = 0;
   TowerType? _selectedTowerType;
   _BottomMode _bottomMode = _BottomMode.troops;
   bool _showPauseMenu = false;
@@ -181,7 +182,11 @@ class _BattleScreenState extends State<BattleScreen> {
     } else {
       provider.startEndless();
     }
-    setState(() {});
+    setState(() {
+      _game = KingdomWarsGame(provider: provider);
+      _gameGen++;
+      _selectedUnitKey = null;
+    });
   }
 
   void _openPauseMenu(StateProvider provider) {
@@ -199,7 +204,11 @@ class _BattleScreenState extends State<BattleScreen> {
     final provider = context.read<StateProvider>();
     final currentLevelId = provider.gameEngine.activeBattle?.level?.id ?? 0;
     provider.startCampaignLevel(currentLevelId + 1);
-    setState(() {});
+    setState(() {
+      _game = KingdomWarsGame(provider: provider);
+      _gameGen++;
+      _selectedUnitKey = null;
+    });
   }
 
   @override
@@ -222,7 +231,7 @@ class _BattleScreenState extends State<BattleScreen> {
                   // window resize), rather than potentially keeping
                   // whatever size it first rendered at — that mismatch is
                   // what left a raw black strip down one side.
-                  child: SizedBox.expand(child: GameWidget(game: _game)),
+                  child: SizedBox.expand(child: GameWidget(key: ValueKey(_gameGen), game: _game)),
                 ),
               ),
               if (_selectedUnitKey != null)

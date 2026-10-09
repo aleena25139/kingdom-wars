@@ -84,6 +84,81 @@ class LevelData {
   /// enemy count and the stat multiplier keep climbing with it forever, the
   /// same way castle stats scale endlessly with castle level.
   static List<Wave> _buildWaves(int levelNumber, int chapterIndex) {
+    return _limitBigVillains(_buildWavesRaw(levelNumber, chapterIndex), levelNumber);
+  }
+
+  static bool _isBigVillain(EnemyType t) =>
+      t == EnemyType.lizard ||
+      t == EnemyType.monster ||
+      t == EnemyType.blackDragon ||
+      t == EnemyType.thunderTitan;
+
+  static EnemyType _smallStandIn(EnemyType t) {
+    switch (t) {
+      case EnemyType.lizard:
+      case EnemyType.monster:
+        return EnemyType.goblin;
+      case EnemyType.thunderTitan:
+        return EnemyType.stormKnight;
+      default:
+        return EnemyType.skeleton;
+    }
+  }
+
+  /// Campaign rule: big villains are rare. Every level gets at most ONE black
+  /// dragon and ONE lizard (a monster only from level 6 on, one Thunder Titan
+  /// only in the storm chapter from level 6 on). Everything else is small.
+  /// Only Endless mode brings many big villains (and slowly).
+  static List<Wave> _limitBigVillains(List<Wave> waves, int levelNumber) {
+    if (waves.isEmpty) return waves;
+    final n = waves.length;
+    final hadTitan = waves.any((w) => w.spawnEntries.any((e) => e.enemyType == EnemyType.thunderTitan));
+    final lizardWave = (n * 0.5).floor().clamp(0, n - 1).toInt();
+    final monsterWave = (n * 0.75).floor().clamp(0, n - 1).toInt();
+    final lastWave = n - 1;
+    final out = <Wave>[];
+    for (var wi = 0; wi < n; wi++) {
+      final w = waves[wi];
+      final entries = <WaveSpawnEntry>[
+        for (final e in w.spawnEntries)
+          _isBigVillain(e.enemyType)
+              ? WaveSpawnEntry(
+                  enemyType: _smallStandIn(e.enemyType),
+                  delayAfterPreviousSeconds: e.delayAfterPreviousSeconds,
+                )
+              : e,
+      ];
+      void swapIn(EnemyType t) {
+        if (entries.isEmpty) {
+          entries.add(WaveSpawnEntry(enemyType: t, delayAfterPreviousSeconds: 0));
+          return;
+        }
+        final i = entries.length ~/ 2;
+        entries[i] = WaveSpawnEntry(
+          enemyType: t,
+          delayAfterPreviousSeconds: entries[i].delayAfterPreviousSeconds,
+        );
+      }
+
+      if (wi == lizardWave) swapIn(EnemyType.lizard);
+      if (wi == monsterWave && levelNumber >= 6) swapIn(EnemyType.monster);
+      if (wi == lastWave) {
+        entries.add(WaveSpawnEntry(enemyType: EnemyType.blackDragon, delayAfterPreviousSeconds: 3.0));
+        if (hadTitan && levelNumber >= 6) {
+          entries.add(WaveSpawnEntry(enemyType: EnemyType.thunderTitan, delayAfterPreviousSeconds: 3.0));
+        }
+      }
+      out.add(Wave(
+        waveNumber: w.waveNumber,
+        spawnEntries: entries,
+        isBossWave: w.isBossWave,
+        statMultiplier: w.statMultiplier,
+      ));
+    }
+    return out;
+  }
+
+  static List<Wave> _buildWavesRaw(int levelNumber, int chapterIndex) {
     if (_chapters[chapterIndex].chapter == Chapter.thunderstorm) {
       return _buildStormWaves(levelNumber);
     }
