@@ -91,6 +91,10 @@ class _ArmyTab extends StatelessWidget {
     UnitType.knight: Icons.shield,
     UnitType.mage: Icons.auto_fix_high,
     UnitType.dragon: Icons.whatshot,
+    UnitType.pandaWarrior: Icons.pets,
+    UnitType.elfPrince: Icons.psychology,
+    UnitType.magician: Icons.auto_awesome,
+    UnitType.phoenix: Icons.local_fire_department,
   };
 
   static const Map<UnitType, String> _flavor = {
@@ -100,6 +104,10 @@ class _ArmyTab extends StatelessWidget {
     UnitType.mage:
         'Channels arcane fire that scorches every foe caught in the blast.',
     UnitType.dragon: "The kingdom's last resort — death raining from the sky.",
+    UnitType.pandaWarrior: 'A kung-fu master who spin-kicks everything that walks up close.',
+    UnitType.elfPrince: 'Bends enemy minds and calls fire down from the sky.',
+    UnitType.magician: 'Heals the squad and hurls bursting balls of magic.',
+    UnitType.phoenix: 'Soars over the horde and scorches it with firebreath.',
   };
 
   @override
@@ -137,6 +145,7 @@ class _ArmyTab extends StatelessWidget {
 
         return CollectionEntryCard(
           icon: _icons[type]!,
+          spriteName: def.spriteName,
           accentColor: AppColors.emeraldGood,
           name: def.displayName,
           statsLine: statsLine,
@@ -209,12 +218,28 @@ class _BestiaryTab extends StatelessWidget {
   static const Map<EnemyType, IconData> _icons = {
     EnemyType.skeleton: Icons.groups,
     EnemyType.skeletonArcher: Icons.gps_fixed,
+    EnemyType.goblin: Icons.flash_on,
+    EnemyType.lizard: Icons.bug_report,
+    EnemyType.monster: Icons.warning,
+    EnemyType.stormKnight: Icons.shield,
+    EnemyType.emberHound: Icons.local_fire_department,
+    EnemyType.stormCaller: Icons.bolt,
+    EnemyType.thunderTitan: Icons.terrain,
+    EnemyType.blackDragon: Icons.whatshot,
   };
 
   static const Map<EnemyType, String> _flavor = {
     EnemyType.skeleton: 'A shambling foot-soldier risen to swell the horde.',
     EnemyType.skeletonArcher:
         'Keeps its distance and peppers the line with arrows.',
+    EnemyType.goblin: 'A fast, sneaky raider that attacks in swarms.',
+    EnemyType.lizard: 'A scaly brute that claws through whole squads.',
+    EnemyType.monster: 'A huge club-swinging beast that smashes through the line.',
+    EnemyType.stormKnight: 'Calls down lightning that arcs from soldier to soldier.',
+    EnemyType.emberHound: 'A fire-breathing hound that scorches everything near it.',
+    EnemyType.stormCaller: 'Raises his hand and summons raging storm clouds.',
+    EnemyType.thunderTitan: 'A giant that hurls flaming boulders from afar.',
+    EnemyType.blackDragon: 'A black flying dragon that breathes fire from above.',
   };
 
   /// Simple, self-contained "have I seen this yet" heuristic — no new save
@@ -247,6 +272,7 @@ class _BestiaryTab extends StatelessWidget {
         final locked = !_discovered(type, progress);
         return CollectionEntryCard(
           icon: _icons[type]!,
+          spriteName: def.spriteName,
           accentColor: AppColors.crimsonEvil,
           name: def.displayName,
           statsLine:
